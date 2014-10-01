@@ -1,0 +1,29 @@
+#! /usr/bin/env ruby
+
+require 'rock/bundles'
+
+Bundles.initialize
+
+Bundles.run \
+    'bus_schremote::Task'   => 'bus',
+    'sonar_tritech::Micron' => 'micron' do
+
+    bus    = Bundles.get 'bus'
+    micron = Bundles.get 'micron'
+
+    # Configure the bus driver first, we need it to connect the micron
+    bus.configure
+    Orocos.log_all
+
+    bus.start
+
+    # Connect the micron to the bus
+    micron.io_port = ""
+    bus.micron.connect_to micron.io_raw_in, :type => :buffer, :size => 50
+    micron.io_raw_out.connect_to bus.wmicron, :type => :buffer, :size => 50
+    micron.configure
+    micron.start
+
+    Bundles.watch(bus, micron)
+end
+

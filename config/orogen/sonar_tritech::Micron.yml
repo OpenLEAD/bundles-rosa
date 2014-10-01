@@ -1,0 +1,45 @@
+--- name:default
+
+baudrate: 0
+
+config:
+  left_limit:
+    rad: -3.141592653589792
+  right_limit:
+    rad: 3.141592653589793
+  angular_resolution:
+    rad: 0.08726646259971647
+  max_distance: 15.0
+  min_distance: 1.0
+  resolution: 0.1
+  speed_of_sound: 1500.0
+  gain: 0.4
+  low_resolution: false
+  continous: true
+
+configure_timeout: 10.0
+
+echo_sounder_timeout: 0.0
+
+ground_frame: echosounder_frame
+# the device address. It can either be serial://PATH[:baudrate], udp://IP_OR_HOSTNAME[:PORT] or tcp://IP_OR_HOSTNAME[:PORT]. Leave empty if you mean to use the io_raw_in and io_raw_out ports.
+io_port: ''
+# the timeout on read. Defaults to one second
+io_read_timeout:
+  microseconds: 10000000
+# the interval at which the status port should be written. Defaults to one second
+io_status_interval:
+  microseconds: 10000000
+# the timeout on write. Defaults to one second. Used only in direct I/O mode
+io_write_timeout:
+  microseconds: 10000000
+
+port: ''
+
+acquisition_timeout:
+  microseconds: 5000000
+
+# Configuration to connect directly (without schremote)
+--- name:direct
+io_port: 'serial:///dev/ttyUSB0:9600'
+
