@@ -1,0 +1,89 @@
+#! /usr/bin/env ruby
+
+require 'rock/bundle'
+require 'vizkit'
+
+Bundles.initialize
+
+# Note on notations:
+#   _p suffix means port
+#   _s suffix means sample
+
+bus = Orocos::RubyTaskContext.new 'bus1'
+inductive1_p = bus.create_output_port 'inductive1', '/raw_io/Digital'
+inductive2_p = bus.create_output_port 'inductive2', '/raw_io/Digital'
+
+ptu = Orocos::RubyTaskContext.new 'ptu'
+ptu_p = ptu.create_output_port 'angles',
+    '/ptu_kongsberg_oe10/Angles'
+
+inclination = Orocos::RubyTaskContext.new 'inclination'
+inclination_p = inclination.create_output_port 'angle',
+    '/base/Angle'
+
+pressure = Orocos::RubyTaskContext.new 'pressure'
+pressure_p = pressure.create_output_port 'pressure',
+    '/base/samples/Pressure'
+
+ui = Vizkit.default_loader.load Bundles.find_file('scripts', 'gui.ui')
+
+# Connect the slide and the spin
+ui.pressureSlide.connect(SIGNAL('valueChanged(int)')) do |value|
+    ui.pressureSpin.value = Float(value) / 10
+end
+ui.pressureSpin.connect(SIGNAL('valueChanged(double)')) do |value|
+    ui.pressureSlide.value = Integer(value * 10)
+end
+
+inductive1_s = Types::RawIo::Digital.new(time: Time.now, data: false)
+inductive2_s = Types::RawIo::Digital.new(time: Time.now, data: false)
+ptu_s = Types::PtuKongsbergOe10::Angles.new(
+    time: Time.now,
+    pan: Types::Base::Angle.new(rad: 0),
+    tilt: Types::Base::Angle.new(rad: 0))
+inclination_s = Types::Base::Angle.new(rad: 0)
+pressure_s = Types::Base::Samples::Pressure.new(
+    time: Time.now,
+    pascal: 100000)
+
+# Connect the UI to the tasks
+ui.inductive1Button.connect(SIGNAL('toggled(bool)')) do |state|
+    inductive1_s.data = state
+end
+ui.inductive2Button.connect(SIGNAL('toggled(bool)')) do |state|
+    inductive2_s.data = state
+end
+ui.panSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
+    ptu_s.pan.rad = deg * Math::PI / 180
+end
+ui.tiltSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
+    ptu_s.tilt.rad = deg * Math::PI / 180
+end
+ui.inclinationSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
+    inclination_s.rad = deg * Math::PI / 180
+end
+ui.pressureSpin.connect(SIGNAL('valueChanged(double)')) do |bar|
+    pressure_s.pascal = bar * 100000
+end
+
+updates = Array[
+    [inductive1_s, inductive1_p],
+    [inductive2_s, inductive2_p],
+    [ptu_s, ptu_p],
+    [inclination_s, inclination_p],
+    [pressure_s, pressure_p]]
+
+timer = Qt::Timer.new
+timer.connect(SIGNAL('timeout()')) do
+    updates.each do |sample, port|
+        if sample.respond_to?(:time)
+            sample.time = Time.now
+        end
+        port.write sample
+    end
+end
+timer.start(100)
+
+ui.show
+Vizkit.exec
+
