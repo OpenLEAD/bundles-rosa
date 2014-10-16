@@ -1,0 +1,19 @@
+--- name:default
+
+channel: 0
+
+id: 250
+# the device address. It can either be serial://PATH[:baudrate], udp://IP_OR_HOSTNAME[:PORT] or tcp://IP_OR_HOSTNAME[:PORT]. Leave empty if you mean to use the io_raw_in and io_raw_out ports.
+io_port: ''
+# the timeout on read. Defaults to one second
+io_read_timeout:
+  microseconds: 1000000
+# the interval at which the status port should be written. Defaults to one second
+io_status_interval:
+  microseconds: 1000000
+# the timeout on write. Defaults to one second. Used only in direct I/O mode
+io_write_timeout:
+  microseconds: 1000000
+
+--- name:direct
+io_port: serial:///dev/ttyUSB0:9600
