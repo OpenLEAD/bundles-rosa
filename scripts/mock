@@ -33,6 +33,7 @@ pressure_p = pressure.create_output_port 'pressure_samples',
     '/base/samples/Pressure'
 
 ui = Vizkit.default_loader.load Bundles.find_file('scripts', 'gui.ui')
+ui.window_title = "ROSA - Mock Test UI"
 
 # Connect the slide and the spin
 ui.pressureSlide.connect(SIGNAL('valueChanged(int)')) do |value|
