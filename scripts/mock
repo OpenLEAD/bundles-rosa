@@ -10,15 +10,22 @@ Bundles.initialize
 #   _s suffix means sample
 
 bus = Orocos::RubyTaskContext.new 'bus1'
-inductive1_p = bus.create_output_port 'inductive1', '/raw_io/Digital'
-inductive2_p = bus.create_output_port 'inductive2', '/raw_io/Digital'
+inductive_left_p  = bus.create_output_port 'inductive_left', '/raw_io/Digital'
+inductive_right_p = bus.create_output_port 'inductive_right', '/raw_io/Digital'
+inductive_key_p   = bus.create_output_port 'inductive_key', '/raw_io/Digital'
 
 ptu = Orocos::RubyTaskContext.new 'ptu'
-ptu_p = ptu.create_output_port 'angles',
-    '/ptu_kongsberg_oe10/Angles'
+ptu_p = ptu.create_output_port 'joints_samples',
+    '/base/samples/Joints'
 
-inclination = Orocos::RubyTaskContext.new 'inclination'
-inclination_p = inclination.create_output_port 'angle',
+inclination_right = Orocos::RubyTaskContext.new 'inclination_right'
+inclination_right_p = inclination_right.create_output_port 'angle',
+    '/base/Angle'
+inclination_body = Orocos::RubyTaskContext.new 'inclination_body'
+inclination_body_p = inclination_body.create_output_port 'angle',
+    '/base/Angle'
+inclination_key = Orocos::RubyTaskContext.new 'inclination_key'
+inclination_key_p = inclination_key.create_output_port 'angle',
     '/base/Angle'
 
 pressure = Orocos::RubyTaskContext.new 'pressure'
@@ -35,42 +42,58 @@ ui.pressureSpin.connect(SIGNAL('valueChanged(double)')) do |value|
     ui.pressureSlide.value = Integer(value * 10)
 end
 
-inductive1_s = Types::RawIo::Digital.new(time: Time.now, data: false)
-inductive2_s = Types::RawIo::Digital.new(time: Time.now, data: false)
-ptu_s = Types::PtuKongsbergOe10::Angles.new(
+inductive_left_s  = Types::RawIo::Digital.new(time: Time.now, data: false)
+inductive_right_s = Types::RawIo::Digital.new(time: Time.now, data: false)
+inductive_key_s   = Types::RawIo::Digital.new(time: Time.now, data: false)
+ptu_s = Types::Base::Samples::Joints.new(
     time: Time.now,
-    pan: Types::Base::Angle.new(rad: 0),
-    tilt: Types::Base::Angle.new(rad: 0))
-inclination_s = Types::Base::Angle.new(rad: 0)
+    names: %w{pan tilt},
+    elements: [ Hash[position: 0], Hash[position: 0] ])
+
+inclination_right_s = Types::Base::Angle.new(rad: 0)
+inclination_body_s = Types::Base::Angle.new(rad: 0)
+inclination_key_s = Types::Base::Angle.new(rad: 0)
 pressure_s = Types::Base::Samples::Pressure.new(
     time: Time.now,
     pascal: 100000)
 
 # Connect the UI to the tasks
-ui.inductive1Button.connect(SIGNAL('toggled(bool)')) do |state|
-    inductive1_s.data = state
+ui.inductiveLeftButton.connect(SIGNAL('toggled(bool)')) do |state|
+    inductive_left_s.data = state
 end
-ui.inductive2Button.connect(SIGNAL('toggled(bool)')) do |state|
-    inductive2_s.data = state
+ui.inductiveRightButton.connect(SIGNAL('toggled(bool)')) do |state|
+    inductive_right_s.data = state
+end
+ui.inductiveKeyButton.connect(SIGNAL('toggled(bool)')) do |state|
+    inductive_key_s.data = state
 end
 ui.panSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
-    ptu_s.pan.rad = deg * Math::PI / 180
+    ptu_s.elements[0].position = deg * Math::PI / 180
 end
 ui.tiltSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
-    ptu_s.tilt.rad = deg * Math::PI / 180
+    ptu_s.elements[1].position = deg * Math::PI / 180
 end
-ui.inclinationSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
-    inclination_s.rad = deg * Math::PI / 180
+ui.inclinationRightSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
+    inclination_right_s.rad = deg * Math::PI / 180
+end
+ui.inclinationBodySpin.connect(SIGNAL('valueChanged(int)')) do |deg|
+    inclination_body_s.rad = deg * Math::PI / 180
+end
+ui.inclinationKeySpin.connect(SIGNAL('valueChanged(int)')) do |deg|
+    inclination_key_s.rad = deg * Math::PI / 180
 end
 ui.pressureSpin.connect(SIGNAL('valueChanged(double)')) do |bar|
     pressure_s.pascal = bar * 100000
 end
 
 updates = Array[
-    [inductive1_s, inductive1_p],
-    [inductive2_s, inductive2_p],
+    [inductive_left_s, inductive_left_p],
+    [inductive_right_s, inductive_right_p],
+    [inductive_key_s, inductive_key_p],
     [ptu_s, ptu_p],
-    [inclination_s, inclination_p],
+    [inclination_right_s, inclination_right_p],
+    [inclination_body_s, inclination_body_p],
+    [inclination_key_s, inclination_key_p],
     [pressure_s, pressure_p]]
 
 timer = Qt::Timer.new
