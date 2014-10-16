@@ -1,0 +1,68 @@
+#! /usr/bin/env ruby
+#
+require 'rock/bundle'
+require 'vizkit'
+
+Bundles.initialize
+Orocos.load_typekit 'base'
+Orocos.load_typekit 'raw_io'
+
+main_ui   = Vizkit.default_loader.load Bundles.find_file('scripts', 'cmd_status.ui')
+main_ui.window_title = "ROSA - Control and Status Debugging UI"
+status_ui = Vizkit.default_loader.load Bundles.find_file('scripts', 'gui.ui')
+status_layout = Qt::VBoxLayout.new(main_ui.statusGroup)
+status_layout.add_widget status_ui
+# Connect the slide and the spin
+status_ui.pressureSlide.connect(SIGNAL('valueChanged(int)')) do |value|
+    status_ui.pressureSpin.value = Float(value) / 10
+end
+status_ui.pressureSpin.connect(SIGNAL('valueChanged(double)')) do |value|
+    status_ui.pressureSlide.value = Integer(value * 10)
+end
+main_ui.resize(600, 0)
+main_ui.show
+
+status_ui.connect_to_task 'bus1' do |_|
+    inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
+        getter: lambda { |sample| sample.data != 0 }
+    inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
+        getter: lambda { |sample| sample.data != 0 }
+    inductiveKeyButton.connect PORT('inductive_key'), SLOT('setChecked(bool)'),
+        getter: lambda { |sample| sample.data != 0 }
+end
+
+status_ui.connect_to_task 'inclination_right' do |_|
+    inclinationRightSlide.connect PORT('angle'), SLOT('setValue(int)'),
+        getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
+end
+status_ui.connect_to_task 'inclination_body' do |_|
+    inclinationBodySlide.connect PORT('angle'), SLOT('setValue(int)'),
+        getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
+end
+status_ui.connect_to_task 'inclination_key' do |_|
+    inclinationKeySlide.connect PORT('angle'), SLOT('setValue(int)'),
+        getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
+end
+status_ui.connect_to_task 'pressure' do |_|
+    pressureSlide.connect PORT('pressure_samples'), SLOT('setValue(int)'),
+        getter: lambda { |sample| Integer(sample.pascal / 10_000) }
+end
+status_ui.connect_to_task 'ptu' do |_|
+    panSlide.connect PORT('joints_samples'), SLOT('setValue(int)'),
+        getter: lambda { |sample| Integer(sample.elements[0].position * 180 / Math::PI) }
+    tiltSlide.connect PORT('joints_samples'), SLOT('setValue(int)'),
+        getter: lambda { |sample| Integer(sample.elements[1].position * 180 / Math::PI) }
+end
+
+ptu_cmd = Types::Base::Commands::Joints.new(
+    time: Time.now,
+    names: %w{pan tilt},
+    elements: [ Hash[position: 0], Hash[position: 0] ])
+main_ui.connect_to_task 'ptu' do |_|
+    panSetSlide.connect SIGNAL('valueChanged(int)'), PORT('joints_cmd'),
+        getter: lambda { |value| ptu_cmd.elements[0].position = value * Math::PI / 180; ptu_cmd }
+    tiltSetSlide.connect SIGNAL('valueChanged(int)'), PORT('joints_cmd'),
+        getter: lambda { |value| ptu_cmd.elements[1].position = value * Math::PI / 180; ptu_cmd }
+end
+
+Vizkit.exec
