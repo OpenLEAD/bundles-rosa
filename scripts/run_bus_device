@@ -1,0 +1,33 @@
+#! /usr/bin/env ruby
+
+require 'rock/bundles'
+
+Bundles.initialize
+
+task_model = ARGV.shift
+task_name  = ARGV.shift
+
+Bundles.run \
+    'bus_schremote::Task'   => 'bus',
+    task_model => task_name do
+
+    bus  = Bundles.get 'bus'
+    task = Bundles.get task_name
+
+    # Configure the bus driver first, we need it to connect the micron
+    bus.configure
+    Orocos.log_all
+
+    bus.start
+
+    # Connect the micron to the bus
+    task.io_port = ""
+    bus.port(task_name).connect_to task.io_raw_in, :type => :buffer, :size => 50
+    task.io_raw_out.connect_to bus.port("w#{task_name}"), :type => :buffer, :size => 50
+    task.configure
+    # task.start
+
+    Bundles.watch(bus, task)
+end
+
+
