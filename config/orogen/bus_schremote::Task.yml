@@ -2,10 +2,10 @@
 digital_ins:
     - pin: 10
       type: PIN_DIN_PULLUP
-      name: inductive1
+      name: inductive_left
     - pin: 11
       type: PIN_DIN_PULLUP
-      name: inductive2
+      name: inductive_right
 uarts:
     - name: micron
       mode: 0
