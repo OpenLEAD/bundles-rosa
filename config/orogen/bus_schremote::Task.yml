@@ -16,7 +16,21 @@ uarts:
       tx: 8
       tx_type: PIN_DOUT_HIGH
       rx: 2
-digital_outs: []
+      enable_send: -1
+    - name: pressure
+      mode: 0
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 9600
+      uart_module: 1
+      tx: 5
+      tx_type: PIN_DOUT_HIGH
+      rx: 1
+      enable_send: 3
+digital_outs:
+    - pin: 3
+      type: PIN_DOUT_LOW
+      name: pressure_enable_send_DO_NOT_USE
 ip: '192.168.1.255'
 mac: '00:04:A3:31:00:14'
 port: 3101
