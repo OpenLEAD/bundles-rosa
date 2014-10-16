@@ -7,16 +7,21 @@ digital_ins:
       type: PIN_DIN_PULLUP
       name: inductive_right
 uarts:
-    - name: micron
+    #- name: micron
+    #  baud: 9600
+    #- name: ptu
+    #  baud: 9600
+    - name: seaking
+      baud: 38400
       mode: 0
       # The electronics has trouble with 115200, switch back to a slower
       # baudrate
-      baud: 9600
       uart_module: 0
       tx: 8
       tx_type: PIN_DOUT_HIGH
       rx: 2
       enable_send: -1
+    # RS485 connection
     - name: pressure
       mode: 0
       # The electronics has trouble with 115200, switch back to a slower
