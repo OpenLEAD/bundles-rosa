@@ -1,0 +1,43 @@
+--- name:default
+
+device_id: 2
+# the timeout on read. Defaults to one second
+io_read_timeout:
+  microseconds: 1000000
+# the interval at which the status port should be written. Defaults to one second
+io_status_interval:
+  microseconds: 1000000
+# the timeout on write. Defaults to one second. Used only in direct I/O mode
+io_write_timeout:
+  microseconds: 1000000
+
+limits:
+  names:
+  - pan
+  - tilt
+  elements:
+  - min:
+      position: 0.35 # 20 degrees. The PTU gets in a weird state below that
+      speed: .nan
+      effort: .nan
+      raw: .nan
+    max:
+      position: 4.71238898038469 # 270 degrees
+      speed: 0.9
+      effort: .nan
+      raw: .nan
+  - min:
+      position: 0.35 # 20 degrees. The PTU gets in a weird state below that
+      speed: .nan
+      effort: .nan
+      raw: .nan
+    max:
+      position: 4.71238898038469
+      speed: 0.9
+      effort: .nan
+      raw: .nan
+
+--- name:direct
+# the device address. It can either be serial://PATH[:baudrate], udp://IP_OR_HOSTNAME[:PORT] or tcp://IP_OR_HOSTNAME[:PORT]. Leave empty if you mean to use the io_raw_in and io_raw_out ports.
+io_port: 'serial:///dev/ttyUSB0:9600'
+
