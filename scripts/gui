@@ -9,8 +9,10 @@ Orocos.load_typekit 'raw_io'
 
 main_ui   = Vizkit.default_loader.load Bundles.find_file('scripts', 'cmd_status.ui')
 main_ui.window_title = "ROSA - Control and Status Debugging UI"
+task_states = Vizkit.default_loader.StateViewer
 status_ui = Vizkit.default_loader.load Bundles.find_file('scripts', 'gui.ui')
 status_layout = Qt::VBoxLayout.new(main_ui.statusGroup)
+status_layout.add_widget task_states
 status_layout.add_widget status_ui
 # Connect the slide and the spin
 status_ui.pressureSlide.connect(SIGNAL('valueChanged(int)')) do |value|
@@ -22,7 +24,8 @@ end
 main_ui.resize(600, 0)
 main_ui.show
 
-status_ui.connect_to_task 'bus1' do |_|
+status_ui.connect_to_task 'bus1' do |task|
+    task_states.add task
     inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
         getter: lambda { |sample| sample.data != 0 }
     inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
@@ -31,23 +34,28 @@ status_ui.connect_to_task 'bus1' do |_|
         getter: lambda { |sample| sample.data != 0 }
 end
 
-status_ui.connect_to_task 'inclination_right' do |_|
+status_ui.connect_to_task 'inclination_right' do |task|
+    task_states.add task
     inclinationRightSlide.connect PORT('angle'), SLOT('setValue(int)'),
         getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
 end
-status_ui.connect_to_task 'inclination_body' do |_|
+status_ui.connect_to_task 'inclination_body' do |task|
+    task_states.add task
     inclinationBodySlide.connect PORT('angle'), SLOT('setValue(int)'),
         getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
 end
-status_ui.connect_to_task 'inclination_key' do |_|
+status_ui.connect_to_task 'inclination_key' do |task|
+    task_states.add task
     inclinationKeySlide.connect PORT('angle'), SLOT('setValue(int)'),
         getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
 end
-status_ui.connect_to_task 'pressure' do |_|
+status_ui.connect_to_task 'pressure' do |task|
+    task_states.add task
     pressureSlide.connect PORT('pressure_samples'), SLOT('setValue(int)'),
         getter: lambda { |sample| Integer(sample.pascal / 10_000) }
 end
-status_ui.connect_to_task 'ptu' do |_|
+status_ui.connect_to_task 'ptu' do |task|
+    task_states.add task
     panSlide.connect PORT('joints_samples'), SLOT('setValue(int)'),
         getter: lambda { |sample| Integer(sample.elements[0].position * 180 / Math::PI) }
     tiltSlide.connect PORT('joints_samples'), SLOT('setValue(int)'),
