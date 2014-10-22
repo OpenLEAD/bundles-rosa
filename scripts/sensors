@@ -52,11 +52,20 @@ Bundles.run \
     pressure.start
 
     pressure.to_async.on_state_change do |state|
-        puts "state of pressure sensor changed to #{state}"
-        if state == :EXCEPTION
-            pressure.reset_exception
-            pressure.configure
-            pressure.start
+        if !pressure.runtime_state?(state)
+            begin
+                if pressure.exception_state?(state)
+                    pressure.reset_exception
+                    pressure.configure
+                    pressure.start
+                elsif pressure.rtt_state == :PRE_OPERATIONAL
+                    pressure.configure
+                    pressure.start
+                elsif pressure.rtt_state == :STOPPED
+                    pressure.start
+                end
+            rescue Orocos::StateTransitionFailed
+            end
         end
     end
 
