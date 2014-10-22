@@ -1,0 +1,59 @@
+#! /usr/bin/env ruby
+# Test script to compute the time needed to read all sensrs
+
+BASE_URL = "http://localhost:9292/api/tasks/localhost"
+REQUEST_OPTIONS = "timeout=0.2&poll_period=0.005"
+URLS = [
+    "#{BASE_URL}/bus1/ports/inductive_key/read.json?#{REQUEST_OPTIONS}",
+    "#{BASE_URL}/bus1/ports/inductive_right/read.json?#{REQUEST_OPTIONS}",
+    "#{BASE_URL}/bus1/ports/inductive_left/read.json?#{REQUEST_OPTIONS}",
+    "#{BASE_URL}/inclination_right/ports/angle/read.json?#{REQUEST_OPTIONS}",
+    "#{BASE_URL}/pressure/ports/pressure_samples/read.json?#{REQUEST_OPTIONS}",
+    "#{BASE_URL}/inclination_key/ports/angle/read.json?#{REQUEST_OPTIONS}",
+    "#{BASE_URL}/inclination_body/ports/angle/read.json?#{REQUEST_OPTIONS}"
+]
+
+require 'rest_client'
+
+def get(*args)
+    RestClient.get(*args)
+    true
+rescue RestClient::RequestTimeout
+    false
+end
+
+def parallel
+    tic = Time.now
+
+    thread_group = ThreadGroup.new
+    URLS.each do |url|
+	thread_group.add(Thread.new do
+	    timeout_count = 0
+	    20.times do
+		if !get(url)
+		    timeout_count += 1
+		end
+	    end
+	    timeout_count
+        end)
+    end
+    timeout_count = thread_group.list.inject(0) { |count, t| count + t.value }
+    puts "#{(Time.now - tic) / 20}s per cycle (#{Float(timeout_count) / 20} timeouts)"
+end
+def sequential
+    timeout_count = 0
+    tic = Time.now
+    20.times do |i|
+	URLS.each do |url|
+	    if !get(url)
+		timeout_count += 1
+	    end
+	end
+    end
+    puts "#{(Time.now - tic) / 20}s per cycle (#{Float(timeout_count) / 20} timeouts)"
+end
+
+puts "Sequential"
+sequential
+puts "Parallel"
+parallel
