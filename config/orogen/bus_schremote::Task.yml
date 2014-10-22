@@ -82,3 +82,6 @@ analog_ins:
       type: PIN_ANALOG_IN
       name: inclination_key
       analog_scale_factor: 2.9692
+--- name:rosa3
+mac: '00:04:A3:31:00:15'
+
