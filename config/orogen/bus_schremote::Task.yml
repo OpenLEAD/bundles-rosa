@@ -8,7 +8,7 @@ analog_ins:
       type: PIN_ANALOG_IN
       analog_scale_factor: 2.9692
       name: inclination_body
-    - pin: 6
+    - pin: 9
       type: PIN_ANALOG_IN
       analog_scale_factor: 2.9692
       name: inclination_right
