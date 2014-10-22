@@ -34,6 +34,18 @@ status_ui.connect_to_task 'bus1' do |task|
         getter: lambda { |sample| sample.data != 0 }
 end
 
+status_ui.connect_to_task 'bus2' do |task|
+    task_states.add task
+end
+
+status_ui.connect_to_task 'micron' do |task|
+    task_states.add task
+end
+
+status_ui.connect_to_task 'seaking' do |task|
+    task_states.add task
+end
+
 status_ui.connect_to_task 'inclination_right' do |task|
     task_states.add task
     inclinationRightSlide.connect PORT('angle'), SLOT('setValue(int)'),

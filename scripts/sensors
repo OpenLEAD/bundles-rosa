@@ -1,29 +1,90 @@
 #! /usr/bin/env ruby
 
 require 'rock/bundles'
+require 'orocos/async'
 
 Bundles.initialize
 
+def connect_device_to_bus(bus, task)
+    task_name = task.basename
+    task.io_port = ""
+    bus.port(task_name).connect_to task.io_raw_in, :type => :buffer, :size => 50
+    task.io_raw_out.connect_to bus.port("w#{task_name}"), :type => :buffer, :size => 50
+end
+
 Bundles.run \
-    'bus_schremote::Task'   => 'bus',
-    'sonar_tritech::Micron' => 'micron' do
+    'bus_schremote::Task'   => ['bus1', 'bus2'],
+    'inclinometer::Task' => ['inclination_right', 'inclination_body', 'inclination_key'],
+    'pressure_velki::Task' => 'pressure',
+    'ptu_kongsberg_oe10::Task' => 'ptu',
+    'sonar_tritech::Micron' => 'micron',
+    'sonar_tritech::Profiling' => 'seaking' do
 
-    bus    = Bundles.get 'bus'
-    micron = Bundles.get 'micron'
+    bus1   = Bundles.get 'bus1'
+    Orocos.conf.apply bus1, ['default', 'rosa1']
+    bus2   = Bundles.get 'bus2'
+    Orocos.conf.apply bus2, ['default', 'rosa2']
 
-    # Configure the bus driver first, we need it to connect the micron
-    bus.configure
+# Configure the bus driver first, we need it to connect the micron
+    bus1.configure
+    bus2.configure
     Orocos.log_all
 
-    bus.start
+    bus1.start
+    bus2.start
 
-    # Connect the micron to the bus
-    micron.io_port = ""
-    bus.micron.connect_to micron.io_raw_in, :type => :buffer, :size => 50
-    micron.io_raw_out.connect_to bus.wmicron, :type => :buffer, :size => 50
-    micron.configure
-    micron.start
+    inclination_right  = Bundles.get 'inclination_right'
+    bus1.inclination_right.connect_to inclination_right.analog_input
+    inclination_right.configure
+    inclination_right.start
+    inclination_body = Bundles.get 'inclination_body'
+    bus1.inclination_body.connect_to inclination_body.analog_input
+    inclination_body.configure
+    inclination_body.start
+    inclination_key   = Bundles.get 'inclination_key'
+    bus2.inclination_key.connect_to inclination_key.analog_input
+    inclination_key.configure
+    inclination_key.start
 
-    Bundles.watch(bus, micron)
+    pressure = Bundles.get 'pressure'
+    connect_device_to_bus(bus1, pressure)
+    pressure.configure
+    pressure.start
+
+    pressure.to_async.on_state_change do |state|
+        puts "state of pressure sensor changed to #{state}"
+        if state == :EXCEPTION
+            pressure.reset_exception
+            pressure.configure
+            pressure.start
+        end
+    end
+
+    ptu = Bundles.get 'ptu'
+    connect_device_to_bus(bus1, ptu)
+    # ptu.configure
+    # ptu.start
+
+    micron = Bundles.get 'micron'
+    seaking = Bundles.get 'seaking'
+
+    if bus1.has_port?('micron')
+        connect_device_to_bus(bus1, micron)
+        micron.configure
+        micron.start
+    else
+        connect_device_to_bus(bus1, seaking)
+        seaking.configure
+        seaking.start
+    end
+
+    Bundles.watch(
+        bus1, bus2,
+        inclination_right, inclination_body, inclination_key,
+        pressure, micron, seaking, ptu
+    ) do
+	# Workaround bug in orocos.rb to get the on_state_change above working
+	Orocos::Async.event_loop.step
+    end
 end
 

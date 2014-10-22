@@ -1,5 +1,25 @@
 --- name:default
+ip: '192.168.100.255'
+port: 3101
+--- name:rosa1
+mac: '00:04:A3:31:00:14'
+analog_ins:
+    - pin: 6
+      type: PIN_ANALOG_IN
+      analog_scale_factor: 2.9692
+      name: inclination_body
+    - pin: 6
+      type: PIN_ANALOG_IN
+      analog_scale_factor: 2.9692
+      name: inclination_right
+digital_outs:
+    - pin: 3
+      type: PIN_DOUT_LOW
+      name: pressure_enable_send_DO_NOT_USE
 digital_ins:
+    - pin: 7
+      type: PIN_DIN_PULLUP
+      name: inductive_key
     - pin: 10
       type: PIN_DIN_PULLUP
       name: inductive_left
@@ -7,19 +27,35 @@ digital_ins:
       type: PIN_DIN_PULLUP
       name: inductive_right
 uarts:
-    #- name: micron
-    #  baud: 9600
-    #- name: ptu
-    #  baud: 9600
-    - name: seaking
-      baud: 38400
-      mode: 0
+    - name: micron
       # The electronics has trouble with 115200, switch back to a slower
       # baudrate
+      baud: 9600
+      mode: 0
       uart_module: 0
       tx: 8
       tx_type: PIN_DOUT_HIGH
       rx: 2
+      enable_send: -1
+    # - name: seaking
+    #   baud: 38400
+    #   mode: 0
+    #   # The electronics has trouble with 115200, switch back to a slower
+    #   # baudrate
+    #   uart_module: 0
+    #   tx: 8
+    #   tx_type: PIN_DOUT_HIGH
+    #   rx: 2
+    #   enable_send: -1
+    - name: ptu
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 9600
+      mode: 0
+      uart_module: 1
+      tx: 4
+      tx_type: PIN_DOUT_HIGH
+      rx: 0
       enable_send: -1
     # RS485 connection
     - name: pressure
@@ -32,10 +68,17 @@ uarts:
       tx_type: PIN_DOUT_HIGH
       rx: 1
       enable_send: 3
+--- name:rosa2
+mac: '00:04:A3:31:00:12'
 digital_outs:
+    - pin: 2
+      type: PIN_DOUT_OPENDRAIN_OPEN
+      name: relay_seaking
     - pin: 3
-      type: PIN_DOUT_LOW
-      name: pressure_enable_send_DO_NOT_USE
-ip: '192.168.1.255'
-mac: '00:04:A3:31:00:14'
-port: 3101
+      type: PIN_DOUT_OPENDRAIN_OPEN
+      name: relay_micron
+analog_ins:
+    - pin: 7
+      type: PIN_ANALOG_IN
+      name: inclination_key
+      analog_scale_factor: 2.9692
