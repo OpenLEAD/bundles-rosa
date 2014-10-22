@@ -1,16 +1,17 @@
 #! /usr/bin/env ruby
 # Test script to compute the time needed to read all sensrs
 
-BASE_URL = "http://localhost:9292/api/tasks/localhost"
+HOST = "localhost"
+BASE_URL = "api/tasks/localhost"
 REQUEST_OPTIONS = "timeout=0.2&poll_period=0.005"
 URLS = [
-    "#{BASE_URL}/bus1/ports/inductive_key/read.json?#{REQUEST_OPTIONS}",
-    "#{BASE_URL}/bus1/ports/inductive_right/read.json?#{REQUEST_OPTIONS}",
-    "#{BASE_URL}/bus1/ports/inductive_left/read.json?#{REQUEST_OPTIONS}",
-    "#{BASE_URL}/inclination_right/ports/angle/read.json?#{REQUEST_OPTIONS}",
-    "#{BASE_URL}/pressure/ports/pressure_samples/read.json?#{REQUEST_OPTIONS}",
-    "#{BASE_URL}/inclination_key/ports/angle/read.json?#{REQUEST_OPTIONS}",
-    "#{BASE_URL}/inclination_body/ports/angle/read.json?#{REQUEST_OPTIONS}"
+    "http://#{HOST}:9292/#{BASE_URL}/bus1/ports/inductive_key/read.json?#{REQUEST_OPTIONS}",
+    "http://#{HOST}:9292/#{BASE_URL}/bus1/ports/inductive_right/read.json?#{REQUEST_OPTIONS}",
+    "http://#{HOST}:9292/#{BASE_URL}/bus1/ports/inductive_left/read.json?#{REQUEST_OPTIONS}",
+    "http://#{HOST}:9292/#{BASE_URL}/inclination_right/ports/angle/read.json?#{REQUEST_OPTIONS}",
+    "http://#{HOST}:9292/#{BASE_URL}/pressure/ports/pressure_samples/read.json?#{REQUEST_OPTIONS}",
+    "http://#{HOST}:9292/#{BASE_URL}/inclination_key/ports/angle/read.json?#{REQUEST_OPTIONS}",
+    "http://#{HOST}:9292/#{BASE_URL}/inclination_body/ports/angle/read.json?#{REQUEST_OPTIONS}"
 ]
 
 require 'rest_client'
