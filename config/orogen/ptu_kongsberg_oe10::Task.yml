@@ -1,5 +1,6 @@
 --- name:default
-
+# This is reset to an empty string in the run script when connected to the bus
+io_port: 'serial:///dev/ttyUSB0:9600'
 device_id: 2
 # the timeout on read. Defaults to one second
 io_read_timeout:
@@ -36,8 +37,4 @@ limits:
       speed: 0.9
       effort: .nan
       raw: .nan
-
---- name:direct
-# the device address. It can either be serial://PATH[:baudrate], udp://IP_OR_HOSTNAME[:PORT] or tcp://IP_OR_HOSTNAME[:PORT]. Leave empty if you mean to use the io_raw_in and io_raw_out ports.
-io_port: 'serial:///dev/ttyUSB0:9600'
 
