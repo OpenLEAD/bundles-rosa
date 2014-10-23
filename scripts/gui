@@ -72,6 +72,21 @@ status_ui.connect_to_task 'ptu' do |task|
         getter: lambda { |sample| Integer(sample.elements[0].position * 180 / Math::PI) }
     tiltSlide.connect PORT('joints_samples'), SLOT('setValue(int)'),
         getter: lambda { |sample| Integer(sample.elements[1].position * 180 / Math::PI) }
+    task.on_state_change do |state|
+        if state == :RUNNING
+            listener = task.port('joints_samples').on_data do |sample|
+        	main_ui.panSetSlide.value = sample.elements[0].position * 180 / Math::PI
+        	main_ui.tiltSetSlide.value = sample.elements[1].position * 180 / Math::PI
+        	main_ui.panSetSlide.enabled = true
+        	main_ui.tiltSetSlide.enabled = true
+        	listener.stop
+            end
+            initialize_command_from_next_joint_sample = true
+        else
+            main_ui.panSetSlide.enabled = true
+            main_ui.tiltSetSlide.enabled = true
+        end
+    end
 end
 
 ptu_cmd = Types::Base::Commands::Joints.new(
@@ -79,10 +94,12 @@ ptu_cmd = Types::Base::Commands::Joints.new(
     names: %w{pan tilt},
     elements: [ Hash[position: 0], Hash[position: 0] ])
 main_ui.connect_to_task 'ptu' do |_|
+    main_ui.panSetSlide.enabled = false
     panSetSlide.connect SIGNAL('valueChanged(int)'), PORT('joints_cmd'),
         getter: lambda { |value| ptu_cmd.elements[0].position = value * Math::PI / 180; ptu_cmd }
+    main_ui.tiltSetSlide.enabled = false
     tiltSetSlide.connect SIGNAL('valueChanged(int)'), PORT('joints_cmd'),
-        getter: lambda { |value| ptu_cmd.elements[1].position = value * Math::PI / 180; ptu_cmd }
+        getter: lambda { |value| ptu_cmd.elements[1].position = value * Math::PI / 180; pp ptu_cmd; ptu_cmd }
 end
 
 Vizkit.exec
