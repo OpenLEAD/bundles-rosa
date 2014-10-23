@@ -30,7 +30,7 @@ uarts:
     - name: micron
       # The electronics has trouble with 115200, switch back to a slower
       # baudrate
-      baud: 9600
+      baud: 57600
       mode: 0
       uart_module: 0
       tx: 8
