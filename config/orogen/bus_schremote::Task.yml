@@ -47,16 +47,7 @@ uarts:
     #   tx_type: PIN_DOUT_HIGH
     #   rx: 2
     #   enable_send: -1
-    - name: ptu
-      # The electronics has trouble with 115200, switch back to a slower
-      # baudrate
-      baud: 9600
-      mode: 0
-      uart_module: 1
-      tx: 4
-      tx_type: PIN_DOUT_HIGH
-      rx: 0
-      enable_send: -1
+
     # RS485 connection
     - name: pressure
       mode: 0
@@ -82,6 +73,17 @@ analog_ins:
       type: PIN_ANALOG_IN
       name: inclination_key
       analog_scale_factor: 2.9692
+uarts:
+    - name: ptu
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 9600
+      mode: 0
+      uart_module: 1
+      tx: 4
+      tx_type: PIN_DOUT_HIGH
+      rx: 0
+      enable_send: -1
 --- name:rosa3
 mac: '00:04:A3:31:00:15'
 
