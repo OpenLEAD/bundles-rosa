@@ -6,12 +6,14 @@ Bundles.initialize
 
 task_model = ARGV.shift
 task_name  = ARGV.shift
+bus_id     = ARGV.shift
 
 Bundles.run \
     'bus_schremote::Task'   => 'bus',
     task_model => task_name do
 
     bus  = Bundles.get 'bus'
+    bus.apply_conf ['default', "rosa#{bus_id}"]
     task = Bundles.get task_name
 
     # Configure the bus driver first, we need it to connect the micron
@@ -25,7 +27,7 @@ Bundles.run \
     bus.port(task_name).connect_to task.io_raw_in, :type => :buffer, :size => 50
     task.io_raw_out.connect_to bus.port("w#{task_name}"), :type => :buffer, :size => 50
     task.configure
-    # task.start
+    task.start
 
     Bundles.watch(bus, task)
 end
