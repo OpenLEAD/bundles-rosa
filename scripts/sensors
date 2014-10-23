@@ -70,9 +70,9 @@ Bundles.run \
     end
 
     ptu = Bundles.get 'ptu'
-    connect_device_to_bus(bus1, ptu)
-    # ptu.configure
-    # ptu.start
+    connect_device_to_bus(bus2, ptu)
+    ptu.configure
+    ptu.start
 
     micron = Bundles.get 'micron'
     seaking = Bundles.get 'seaking'
