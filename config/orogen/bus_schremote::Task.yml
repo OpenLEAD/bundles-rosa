@@ -108,26 +108,6 @@ digital_ins:
       type: PIN_DIN_PULLUP
       name: inductive_right
 uarts:
-    # - name: micron
-    #   # The electronics has trouble with 115200, switch back to a slower
-    #   # baudrate
-    #   baud: 57600
-    #   mode: 0
-    #   uart_module: 0
-    #   tx: 4
-    #   tx_type: PIN_DOUT_HIGH
-    #   rx: 0
-    #   enable_send: -1
-    - name: seaking
-      baud: 9600
-      mode: 0
-      # The electronics has trouble with 115200, switch back to a slower
-      # baudrate
-      uart_module: 0
-      tx: 4
-      tx_type: PIN_DOUT_HIGH
-      rx: 0
-      enable_send: -1
 
     # RS485 connection
     - name: pressure
@@ -165,5 +145,25 @@ uarts:
       tx: 6
       tx_type: PIN_DOUT_HIGH
       rx: 10
+      enable_send: -1
+    # - name: micron
+    #   # The electronics has trouble with 115200, switch back to a slower
+    #   # baudrate
+    #   baud: 57600
+    #   mode: 0
+    #   uart_module: 0
+    #   tx: 4
+    #   tx_type: PIN_DOUT_HIGH
+    #   rx: 0
+    #   enable_send: -1
+    - name: seaking
+      baud: 9600
+      mode: 0
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      uart_module: 0
+      tx: 4
+      tx_type: PIN_DOUT_HIGH
+      rx: 0
       enable_send: -1
 

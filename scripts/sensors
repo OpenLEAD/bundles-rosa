@@ -95,12 +95,12 @@ Bundles.run \
     micron = Bundles.get 'micron'
     seaking = Bundles.get 'seaking'
 
-    if bus1.has_port?('micron')
-        connect_device_to_bus(bus1, micron)
+    if bus2.has_port?('micron')
+        connect_device_to_bus(bus2, micron)
         micron.configure
         micron.start
     else
-        connect_device_to_bus(bus1, seaking)
+        connect_device_to_bus(bus2, seaking)
         seaking.configure
         seaking.start
     end
