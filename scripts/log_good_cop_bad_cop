@@ -1,0 +1,14 @@
+#! /usr/bin/env ruby
+# Displays good and bad rx info from a set of logs
+require 'pocolog'
+
+Pocolog.logger.level = Logger::WARN
+ARGV.each do |file|
+    logfile = Pocolog::Logfiles.open(file)
+    status = logfile.stream('/micron.io_status')
+    samples = status.samples.to_a
+    if !samples.empty?
+	s = samples.last
+	puts "#{file} #{s.last.good_rx} #{s.last.bad_rx}"
+    end
+end
