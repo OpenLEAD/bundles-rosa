@@ -12,6 +12,16 @@ def connect_device_to_bus(bus, task)
     task.io_raw_out.connect_to bus.port("w#{task_name}"), :type => :buffer, :size => 50
 end
 
+config = 'green'
+options = OptionParser.new do |opt|
+    opt.on '--blue', 'run with the blue board (default is to run for the green board)' do |flag|
+	if flag
+	    config = 'blue'
+	end
+    end
+end
+options.parse ARGV
+
 Bundles.run \
     'bus_schremote::Task'   => ['bus1', 'bus2'],
     'inclinometer::Task' => ['inclination_right', 'inclination_body', 'inclination_key'],
@@ -21,9 +31,9 @@ Bundles.run \
     'sonar_tritech::Profiling' => 'seaking' do
 
     bus1   = Bundles.get 'bus1'
-    Orocos.conf.apply bus1, ['default', 'rosa1']
+    Orocos.conf.apply bus1, ['default', "#{config}1"]
     bus2   = Bundles.get 'bus2'
-    Orocos.conf.apply bus2, ['default', 'rosa2']
+    Orocos.conf.apply bus2, ['default', "#{config}2"]
 
 # Configure the bus driver first, we need it to connect the micron
     bus1.configure
@@ -37,14 +47,20 @@ Bundles.run \
     bus1.inclination_right.connect_to inclination_right.analog_input
     inclination_right.configure
     inclination_right.start
-    inclination_body = Bundles.get 'inclination_body'
-    bus1.inclination_body.connect_to inclination_body.analog_input
-    inclination_body.configure
-    inclination_body.start
     inclination_key   = Bundles.get 'inclination_key'
     bus2.inclination_key.connect_to inclination_key.analog_input
     inclination_key.configure
     inclination_key.start
+
+    inclination_body_bus =
+	if config == 'green' then bus1
+	else bus2
+	end
+    inclination_body = Bundles.get 'inclination_body'
+    inclination_body_bus.inclination_body.
+	connect_to inclination_body.analog_input
+    inclination_body.configure
+    inclination_body.start
 
     pressure = Bundles.get 'pressure'
     connect_device_to_bus(bus1, pressure)

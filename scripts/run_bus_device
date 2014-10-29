@@ -7,13 +7,14 @@ Bundles.initialize
 task_model = ARGV.shift
 task_name  = ARGV.shift
 bus_id     = ARGV.shift
+bus_name, bus_id = /(\w+)(\d)/.match(bus_id)
 
 Bundles.run \
-    'bus_schremote::Task'   => 'bus',
+    'bus_schremote::Task'   => "bus#{bus_id}",
     task_model => task_name do
 
     bus  = Bundles.get 'bus'
-    bus.apply_conf ['default', "rosa#{bus_id}"]
+    bus.apply_conf ['default', "#{bus_name}#{bus_id}"]
     task = Bundles.get task_name
 
     # Configure the bus driver first, we need it to connect the micron

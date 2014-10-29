@@ -3,6 +3,17 @@
 require 'rock/bundle'
 require 'vizkit'
 
+config = 'green'
+options = OptionParser.new do |opt|
+    opt.on '--blue', 'run with the blue board (default is to run for the green board)' do |flag|
+	if flag
+	    config = 'blue'
+	end
+    end
+end
+options.parse ARGV
+
+
 Bundles.initialize
 Orocos.load_typekit 'base'
 Orocos.load_typekit 'raw_io'
@@ -24,18 +35,32 @@ end
 main_ui.resize(600, 0)
 main_ui.show
 
-status_ui.connect_to_task 'bus1' do |task|
-    task_states.add task
-    inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
-        getter: lambda { |sample| sample.data != 0 }
-    inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
-        getter: lambda { |sample| sample.data != 0 }
-    inductiveKeyButton.connect PORT('inductive_key'), SLOT('setChecked(bool)'),
-        getter: lambda { |sample| sample.data != 0 }
-end
-
-status_ui.connect_to_task 'bus2' do |task|
-    task_states.add task
+if config == 'blue'
+    status_ui.connect_to_task 'bus1' do |task|
+        task_states.add task
+        inductiveKeyButton.connect PORT('inductive_key'), SLOT('setChecked(bool)'),
+            getter: lambda { |sample| sample.data != 0 }
+    end
+    status_ui.connect_to_task 'bus2' do |task|
+        task_states.add task
+        inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
+            getter: lambda { |sample| sample.data != 0 }
+        inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
+            getter: lambda { |sample| sample.data != 0 }
+    end
+else
+    status_ui.connect_to_task 'bus1' do |task|
+        task_states.add task
+        inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
+            getter: lambda { |sample| sample.data != 0 }
+        inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
+            getter: lambda { |sample| sample.data != 0 }
+        inductiveKeyButton.connect PORT('inductive_key'), SLOT('setChecked(bool)'),
+            getter: lambda { |sample| sample.data != 0 }
+    end
+    status_ui.connect_to_task 'bus2' do |task|
+        task_states.add task
+    end
 end
 
 status_ui.connect_to_task 'micron' do |task|
