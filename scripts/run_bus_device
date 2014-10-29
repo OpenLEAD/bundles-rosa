@@ -7,13 +7,14 @@ Bundles.initialize
 task_model = ARGV.shift
 task_name  = ARGV.shift
 bus_id     = ARGV.shift
-bus_name, bus_id = /(\w+)(\d)/.match(bus_id)
+_, bus_name, bus_id = /(\w+)(\d)/.match(bus_id).to_a
+bus_task_name = "bus#{bus_id}"
 
 Bundles.run \
-    'bus_schremote::Task'   => "bus#{bus_id}",
+    'bus_schremote::Task'   => bus_task_name,
     task_model => task_name do
 
-    bus  = Bundles.get 'bus'
+    bus  = Bundles.get bus_task_name
     bus.apply_conf ['default', "#{bus_name}#{bus_id}"]
     task = Bundles.get task_name
 
@@ -25,8 +26,8 @@ Bundles.run \
 
     # Connect the micron to the bus
     task.io_port = ""
-    bus.port(task_name).connect_to task.io_raw_in, :type => :buffer, :size => 50
-    task.io_raw_out.connect_to bus.port("w#{task_name}"), :type => :buffer, :size => 50
+    bus.port(task_name).connect_to task.io_raw_in, :type => :buffer, :size => 1000
+    task.io_raw_out.connect_to bus.port("w#{task_name}"), :type => :buffer, :size => 1000
     task.configure
     task.start
 
