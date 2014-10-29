@@ -141,7 +141,7 @@ uarts:
       rx: 2
       enable_send: 3
 --- name:blue2
-mac: '00:04:A3:31:00:15'
+mac: '00:04:A3:31:00:12'
 analog_ins:
     - pin: 7
       type: PIN_ANALOG_IN
