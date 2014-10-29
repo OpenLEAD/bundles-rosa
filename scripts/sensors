@@ -23,7 +23,7 @@ end
 options.parse ARGV
 
 Bundles.run \
-    'bus_schremote::Task'   => ['bus1', 'bus2'],
+    'busses',
     'inclinometer::Task' => ['inclination_right', 'inclination_body', 'inclination_key'],
     'pressure_velki::Task' => 'pressure',
     'ptu_kongsberg_oe10::Task' => 'ptu',
