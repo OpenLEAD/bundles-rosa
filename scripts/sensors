@@ -12,6 +12,26 @@ def connect_device_to_bus(bus, task)
     task.io_raw_out.connect_to bus.port("w#{task_name}"), :type => :buffer, :size => 50
 end
 
+def restart_on_exception(task)
+    task.to_async.on_state_change do |state|
+        if !task.runtime_state?(state)
+            begin
+                if task.exception_state?(state)
+                    task.reset_exception
+                    task.configure
+                    task.start
+                elsif task.rtt_state == :PRE_OPERATIONAL
+                    task.configure
+                    task.start
+                elsif task.rtt_state == :STOPPED
+                    task.start
+                end
+            rescue Orocos::StateTransitionFailed
+            end
+        end
+    end
+end
+
 config = 'green'
 options = OptionParser.new do |opt|
     opt.on '--blue', 'run with the blue board (default is to run for the green board)' do |flag|
@@ -65,27 +85,10 @@ Bundles.run \
     inclination_body.start
 
     pressure = Bundles.get 'pressure'
+    restart_on_exception(pressure)
     connect_device_to_bus(bus1, pressure)
     pressure.configure
     pressure.start
-
-    pressure.to_async.on_state_change do |state|
-        if !pressure.runtime_state?(state)
-            begin
-                if pressure.exception_state?(state)
-                    pressure.reset_exception
-                    pressure.configure
-                    pressure.start
-                elsif pressure.rtt_state == :PRE_OPERATIONAL
-                    pressure.configure
-                    pressure.start
-                elsif pressure.rtt_state == :STOPPED
-                    pressure.start
-                end
-            rescue Orocos::StateTransitionFailed
-            end
-        end
-    end
 
     ptu = Bundles.get 'ptu'
     connect_device_to_bus(bus2, ptu)
@@ -93,7 +96,9 @@ Bundles.run \
     ptu.start
 
     micron = Bundles.get 'micron'
+    restart_on_exception(micron)
     seaking = Bundles.get 'seaking'
+    restart_on_exception(pressure)
 
     if bus2.has_port?('micron')
         connect_device_to_bus(bus2, micron)
@@ -110,7 +115,7 @@ Bundles.run \
         inclination_right, inclination_body, inclination_key,
         pressure, micron, seaking, ptu
     ) do
-	# Workaround bug in orocos.rb to get the on_state_change above working
+	# Workaround bug in orocos.rb to get the on_state_change in restart_on_exception working
 	Orocos::Async.event_loop.step
     end
 end
