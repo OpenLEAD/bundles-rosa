@@ -7,3 +7,4 @@ killall -9 orogen_default_sonar_tritech__Profiling
 killall -9 orogen_default_ptu_kongsberg_oe10__Task
 killall -9 orogen_default_transformer__Task
 killall -9 ruby1.9.1
+ps ax | grep orogen | grep -v grep
