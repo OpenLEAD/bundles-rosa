@@ -85,32 +85,6 @@ uarts:
       rx: 0
       enable_send: -1
 --- name:blue1
-mac: '00:04:A3:31:00:15'
-analog_ins:
-    - pin: 7
-      type: PIN_ANALOG_IN
-      name: inclination_key
-      analog_scale_factor: 2.9692
-    - pin: 9
-      type: PIN_ANALOG_IN
-      analog_scale_factor: 2.9692
-      name: inclination_right
-digital_ins:
-    - pin: 11
-      type: PIN_DIN_PULLUP
-      name: inductive_key
-uarts:
-    - name: ptu
-      # The electronics has trouble with 115200, switch back to a slower
-      # baudrate
-      baud: 9600
-      mode: 0
-      uart_module: 1
-      tx: 6
-      tx_type: PIN_DOUT_HIGH
-      rx: 10
-      enable_send: -1
---- name:blue2
 mac: '00:04:A3:31:00:14'
 analog_ins:
     - pin: 7
@@ -161,4 +135,30 @@ uarts:
       tx_type: PIN_DOUT_HIGH
       rx: 2
       enable_send: 3
+--- name:blue2
+mac: '00:04:A3:31:00:15'
+analog_ins:
+    - pin: 7
+      type: PIN_ANALOG_IN
+      name: inclination_key
+      analog_scale_factor: 2.9692
+    - pin: 9
+      type: PIN_ANALOG_IN
+      analog_scale_factor: 2.9692
+      name: inclination_right
+digital_ins:
+    - pin: 11
+      type: PIN_DIN_PULLUP
+      name: inductive_key
+uarts:
+    - name: ptu
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 9600
+      mode: 0
+      uart_module: 1
+      tx: 6
+      tx_type: PIN_DOUT_HIGH
+      rx: 10
+      enable_send: -1
 
