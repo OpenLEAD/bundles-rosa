@@ -1,7 +1,7 @@
 --- name:default
 ip: '192.168.100.255'
 port: 3101
---- name:rosa1
+--- name:green1
 mac: '00:04:A3:31:00:14'
 analog_ins:
     - pin: 6
@@ -59,7 +59,7 @@ uarts:
       tx_type: PIN_DOUT_HIGH
       rx: 1
       enable_send: 3
---- name:rosa2
+--- name:green2
 mac: '00:04:A3:31:00:12'
 digital_outs:
     - pin: 2
@@ -84,12 +84,8 @@ uarts:
       tx_type: PIN_DOUT_HIGH
       rx: 0
       enable_send: -1
---- name:rosa3
+--- name:blue1
 mac: '00:04:A3:31:00:15'
-digital_ins:
-    - pin: 11
-      type: PIN_DIN_PULLUP
-      name: inductive_key
 analog_ins:
     - pin: 7
       type: PIN_ANALOG_IN
@@ -99,6 +95,10 @@ analog_ins:
       type: PIN_ANALOG_IN
       analog_scale_factor: 2.9692
       name: inclination_right
+digital_ins:
+    - pin: 11
+      type: PIN_DIN_PULLUP
+      name: inductive_key
 uarts:
     - name: ptu
       # The electronics has trouble with 115200, switch back to a slower
@@ -110,7 +110,7 @@ uarts:
       tx_type: PIN_DOUT_HIGH
       rx: 10
       enable_send: -1
---- name:rosa4
+--- name:blue2
 mac: '00:04:A3:31:00:14'
 analog_ins:
     - pin: 7
