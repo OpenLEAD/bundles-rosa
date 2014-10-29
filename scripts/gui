@@ -36,12 +36,12 @@ main_ui.resize(600, 0)
 main_ui.show
 
 if config == 'blue'
-    status_ui.connect_to_task 'bus1' do |task|
+    status_ui.connect_to_task 'bus2' do |task|
         task_states.add task
         inductiveKeyButton.connect PORT('inductive_key'), SLOT('setChecked(bool)'),
             getter: lambda { |sample| sample.data != 0 }
     end
-    status_ui.connect_to_task 'bus2' do |task|
+    status_ui.connect_to_task 'bus1' do |task|
         task_states.add task
         inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
             getter: lambda { |sample| sample.data != 0 }
