@@ -1,0 +1,7 @@
+#! /bin/sh
+killall -9 orogen_default_bus_schremote__Task
+killall -9 orogen_default_inclinometer__Task
+killall -9 orogen_default_pressure_velki__Task
+killall -9 orogen_default_sonar_tritech__Micron
+killall -9 orogen_default_sonar_tritech__Profiling
+killall -9 orogen_default_ptu_konsberg_oe10__Task
