@@ -1,7 +1,5 @@
 --- name:default
-
-baudrate: 0
-
+io_port: 'serial:///dev/ttyUSB0:57600'
 config:
   left_limit:
     rad: -3.141592653589792
@@ -38,8 +36,4 @@ port: ''
 
 acquisition_timeout:
   microseconds: 5000000
-
-# Configuration to connect directly (without schremote)
---- name:direct
-io_port: 'serial:///dev/ttyUSB0:9600'
 
