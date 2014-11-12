@@ -32,7 +32,7 @@ end
 status_ui.pressureSpin.connect(SIGNAL('valueChanged(double)')) do |value|
     status_ui.pressureSlide.value = Integer(value * 10)
 end
-main_ui.resize(600, 0)
+main_ui.resize(900, 0)
 main_ui.show
 
 if config == 'blue'
@@ -125,6 +125,13 @@ main_ui.connect_to_task 'ptu' do |_|
     main_ui.tiltSetSlide.enabled = false
     tiltSetSlide.connect SIGNAL('valueChanged(int)'), PORT('joints_cmd'),
         getter: lambda { |value| ptu_cmd.elements[1].position = value * Math::PI / 180; pp ptu_cmd; ptu_cmd }
+    runButton.connect SIGNAL('clicked()'), PORT('joints_cmd'),
+        getter: lambda {Thread.new{ main_ui.startAngle.value.step(main_ui.endAngle.value, main_ui.increment.value) do |angle|
+           ptu_cmd.elements[0].position =  angle * Math::PI / 180
+           puts "#{angle}"
+           ptu_cmd
+           sleep Integer(main_ui.periodSample.value)
+        end} }
 end
 
 Vizkit.exec
