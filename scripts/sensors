@@ -96,15 +96,15 @@ Bundles.run \
     ptu.start
 
     micron = Bundles.get 'micron'
-    restart_on_exception(micron)
     seaking = Bundles.get 'seaking'
-    restart_on_exception(pressure)
 
     if bus2.has_port?('micron')
+	restart_on_exception(micron)
         connect_device_to_bus(bus2, micron)
         micron.configure
         micron.start
     else
+	restart_on_exception(seaking)
         connect_device_to_bus(bus2, seaking)
         seaking.configure
         seaking.start
