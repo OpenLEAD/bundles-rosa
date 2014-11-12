@@ -32,11 +32,11 @@ def restart_on_exception(task)
     end
 end
 
-config = 'green'
+config = 'blue'
 options = OptionParser.new do |opt|
-    opt.on '--blue', 'run with the blue board (default is to run for the green board)' do |flag|
+    opt.on '--green', 'run with the green board (default is to run for the blue board)' do |flag|
 	if flag
-	    config = 'blue'
+	    config = 'green'
 	end
     end
 end
