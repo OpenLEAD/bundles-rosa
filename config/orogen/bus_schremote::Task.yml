@@ -158,7 +158,7 @@ uarts:
     #   rx: 0
     #   enable_send: -1
     - name: seaking
-      baud: 9600
+      baud: 38400
       mode: 0
       # The electronics has trouble with 115200, switch back to a slower
       # baudrate
