@@ -16,7 +16,7 @@ data_stream = file.stream("/ptu.joints_samples")
 # considering the change in the position
 current_position = "null"
 t0 = "null"
-tf = "null" 
+tf = "null"
 result = Array.new
 
 data_stream.samples.each do |realtime, logical, sample|
@@ -27,7 +27,7 @@ data_stream.samples.each do |realtime, logical, sample|
             result << [t0,tf]
         end
         current_position = sample.elements[0].position
-        t0 = sample.time 
+        t0 = sample.time
     end
     last_position = sample.elements[0].position
     tf = sample.time
@@ -42,7 +42,7 @@ end
 def filter_logs(intervals, logfile, *stream_names)
     ## Now create a new log file with only the interesting parts
     file = Logfiles.new File.open(logfile)
-    logfile.slice! ".0.log" 
+    logfile.slice! ".0.log"
     out_file = Logfiles.create File.join("filtered", logfile), file.registry
     stream_names.each do |name|
         data_stream = file.stream(name)
@@ -55,7 +55,7 @@ def filter_logs(intervals, logfile, *stream_names)
             break if intervals.empty?
             next if sample.time < intervals.first[0]
 
-            out_data_stream.write realtime, logical, sample  
+            out_data_stream.write realtime, logical, sample
         end
     end
 end
