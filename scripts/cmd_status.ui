@@ -108,6 +108,154 @@
     </widget>
    </item>
    <item>
+    <widget class="QFrame" name="frame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QPushButton" name="runButton">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>98</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Run Loop</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="increment">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>10</y>
+        <width>60</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>-360</number>
+      </property>
+      <property name="maximum">
+       <number>360</number>
+      </property>
+      <property name="value">
+       <number>10</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="panSetLabel_2">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>10</y>
+        <width>71</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Increment</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="panSetLabel_3">
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>10</y>
+        <width>21</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>to</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="panSetLabel_4">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>10</y>
+        <width>31</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>from</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="startAngle">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>10</y>
+        <width>60</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>360</number>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="endAngle">
+      <property name="geometry">
+       <rect>
+        <x>560</x>
+        <y>10</y>
+        <width>60</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>360</number>
+      </property>
+      <property name="value">
+       <number>190</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="panSetLabel_5">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>10</y>
+        <width>71</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>period (s)</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="periodSample">
+      <property name="geometry">
+       <rect>
+        <x>720</x>
+        <y>10</y>
+        <width>60</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="value">
+       <number>25</number>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="statusGroup">
      <property name="title">
       <string>Status</string>
