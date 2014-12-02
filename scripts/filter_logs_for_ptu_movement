@@ -64,6 +64,9 @@ end
 FileUtils.mkdir_p 'filtered'
 
 ptu_still_intervals = read_ptu_still_intervals
+filter_logs(ptu_still_intervals, 'ptu.0.log', '/ptu.orientation_samples')
 
+ptu_still_intervals = read_ptu_still_intervals
 filter_logs(ptu_still_intervals, 'micron.0.log', '/micron.sonar_beam')
+
 
