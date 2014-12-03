@@ -39,12 +39,13 @@ Bundles.run 'rosa_localization::Task' => 'rosa_localization' do
     # in the transformer's
 
     #The log is not allowed to have this proprety set.
-    sonar.sonar_beam.frame = 'sonar'
+    #sonar.sonar_beam.frame = 'sonar'
 
     # Properly setup frame names. These are not arbitrary anymore:
     # they MUST match the frame names listed in the transformer's
     # configuration files
     rosa_localization.body_frame = "body"
+    depth_samples_port.frame = "depth"
 
     #The ptu frames are already set as the default values in the log
     #ptu.base_frame = "ptu_kongsberg_base"
@@ -54,7 +55,7 @@ Bundles.run 'rosa_localization::Task' => 'rosa_localization' do
     
     # Finalize transformer configuration (see below for explanations)
     # For static transformations the task should not not yet be configured
-    Orocos.transformer.setup(rosa_localization,ptu,sonar)
+    Orocos.transformer.setup(rosa_localization,ptu,sonar,depth_samples_port)
 
     rosa_localization.configure
 

@@ -9,4 +9,4 @@ dynamic_transform "ptu.orientation_samples",
   "ptu_kongsberg_base" => "ptu_kongsberg_moving"
 
 static_transform Eigen::Vector3.new(0.3, 0, 0),
-    "body" => "depth_sensor_frame"
+    "body" => "depth"
