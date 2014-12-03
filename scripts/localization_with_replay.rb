@@ -15,8 +15,8 @@ Bundles.run 'rosa_localization::Task' => 'rosa_localization' do
     #Open the log of the components necessary to run the localizartion
     #It is assumed that the script is going to be run on the log folder 
     #of the FILTERED logs
-    sonar_log = Orocos::Log::Replay.open("../logs/20141106-1455-Micron180to0aprox6.3m/micron.0.log")
-    ptu_log =  Orocos::Log::Replay.open("../logs/20141106-1455-Micron180to0aprox6.3m/ptu.0.log")
+    sonar_log = Orocos::Log::Replay.open("../logs/20141106-1455-Micron180to0aprox6.3m/filtered/micron.0.log")
+    ptu_log =  Orocos::Log::Replay.open("../logs/20141106-1455-Micron180to0aprox6.3m/filtered/ptu.0.log")
 
     #
     sonar = sonar_log.micron
@@ -40,14 +40,15 @@ Bundles.run 'rosa_localization::Task' => 'rosa_localization' do
 
     #The log is not allowed to have this proprety set.
     #sonar.sonar_beam.frame = 'sonar'
+    depth_samples_port.frame = "depth"
 
     # Properly setup frame names. These are not arbitrary anymore:
     # they MUST match the frame names listed in the transformer's
     # configuration files
     rosa_localization.body_frame = "body"
-    depth_samples_port.frame = "depth"
+  
 
-    #The ptu frames are already set as the default values in the log
+    #The ptu frames are already set as the default values in the log, right?
     #ptu.base_frame = "ptu_kongsberg_base"
     #ptu.moving_frame = "ptu_kongsberg_moving"
  
