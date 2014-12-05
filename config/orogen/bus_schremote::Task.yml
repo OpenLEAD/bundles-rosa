@@ -171,7 +171,8 @@ uarts:
       tx_type: PIN_DOUT_HIGH
       rx: 0
       enable_send: -1
---- name: standart_operation
+
+--- name:standart_operation
 mac: '00:04:A3:31:00:12' # TODO PUT THE CORRECT VALUE
 analog_ins:
     - pin: 7
