@@ -38,7 +38,7 @@ main_ui.show
 if config == 'blue'
     status_ui.connect_to_task 'bus2' do |task|
         task_states.add task
-        inductiveKeyButton.connect PORT('inductive_key'), SLOT('setChecked(bool)'),
+        inductiveKeyAttachedButton.connect PORT('inductive_key_attached'), SLOT('setChecked(bool)'),
             getter: lambda { |sample| sample.data != 0 }
     end
     status_ui.connect_to_task 'bus1' do |task|
@@ -55,7 +55,7 @@ else
             getter: lambda { |sample| sample.data != 0 }
         inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
             getter: lambda { |sample| sample.data != 0 }
-        inductiveKeyButton.connect PORT('inductive_key'), SLOT('setChecked(bool)'),
+        inductiveKeyAttachedButton.connect PORT('inductive_key_attached'), SLOT('setChecked(bool)'),
             getter: lambda { |sample| sample.data != 0 }
     end
     status_ui.connect_to_task 'bus2' do |task|
@@ -71,19 +71,9 @@ status_ui.connect_to_task 'seaking' do |task|
     task_states.add task
 end
 
-status_ui.connect_to_task 'inclination_right' do |task|
-    task_states.add task
-    inclinationRightSlide.connect PORT('angle'), SLOT('setValue(int)'),
-        getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
-end
 status_ui.connect_to_task 'inclination_body' do |task|
     task_states.add task
     inclinationBodySlide.connect PORT('angle'), SLOT('setValue(int)'),
-        getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
-end
-status_ui.connect_to_task 'inclination_key' do |task|
-    task_states.add task
-    inclinationKeySlide.connect PORT('angle'), SLOT('setValue(int)'),
         getter: lambda { |sample| Integer(sample.rad * 180 / Math::PI) }
 end
 status_ui.connect_to_task 'pressure' do |task|
