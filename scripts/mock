@@ -12,20 +12,15 @@ Bundles.initialize
 bus = Orocos::RubyTaskContext.new 'bus1'
 inductive_left_p  = bus.create_output_port 'inductive_left', '/raw_io/Digital'
 inductive_right_p = bus.create_output_port 'inductive_right', '/raw_io/Digital'
-inductive_key_p   = bus.create_output_port 'inductive_key', '/raw_io/Digital'
+inductive_key_attached_p   = bus.create_output_port 'inductive_key_attached', '/raw_io/Digital'
+inductive_key_detached_p   = bus.create_output_port 'inductive_key_detached', '/raw_io/Digital'
 
 ptu = Orocos::RubyTaskContext.new 'ptu'
 ptu_p = ptu.create_output_port 'joints_samples',
     '/base/samples/Joints'
 
-inclination_right = Orocos::RubyTaskContext.new 'inclination_right'
-inclination_right_p = inclination_right.create_output_port 'angle',
-    '/base/Angle'
 inclination_body = Orocos::RubyTaskContext.new 'inclination_body'
 inclination_body_p = inclination_body.create_output_port 'angle',
-    '/base/Angle'
-inclination_key = Orocos::RubyTaskContext.new 'inclination_key'
-inclination_key_p = inclination_key.create_output_port 'angle',
     '/base/Angle'
 
 pressure = Orocos::RubyTaskContext.new 'pressure'
@@ -45,15 +40,14 @@ end
 
 inductive_left_s  = Types::RawIo::Digital.new(time: Time.now, data: false)
 inductive_right_s = Types::RawIo::Digital.new(time: Time.now, data: false)
-inductive_key_s   = Types::RawIo::Digital.new(time: Time.now, data: false)
+inductive_key_attached_s   = Types::RawIo::Digital.new(time: Time.now, data: false)
+inductive_key_detached_s   = Types::RawIo::Digital.new(time: Time.now, data: false)
 ptu_s = Types::Base::Samples::Joints.new(
     time: Time.now,
     names: %w{pan tilt},
     elements: [ Hash[position: 0], Hash[position: 0] ])
 
-inclination_right_s = Types::Base::Angle.new(rad: 0)
 inclination_body_s = Types::Base::Angle.new(rad: 0)
-inclination_key_s = Types::Base::Angle.new(rad: 0)
 pressure_s = Types::Base::Samples::Pressure.new(
     time: Time.now,
     pascal: 100000)
@@ -65,8 +59,11 @@ end
 ui.inductiveRightButton.connect(SIGNAL('toggled(bool)')) do |state|
     inductive_right_s.data = state
 end
-ui.inductiveKeyButton.connect(SIGNAL('toggled(bool)')) do |state|
-    inductive_key_s.data = state
+ui.inductiveKeyAttachedButton.connect(SIGNAL('toggled(bool)')) do |state|
+    inductive_key_attached_s.data = state
+end
+ui.inductiveKeyDetachedButton.connect(SIGNAL('toggled(bool)')) do |state|
+    inductive_key_detached_s.data = state
 end
 ui.panSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
     ptu_s.elements[0].position = deg * Math::PI / 180
@@ -74,14 +71,8 @@ end
 ui.tiltSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
     ptu_s.elements[1].position = deg * Math::PI / 180
 end
-ui.inclinationRightSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
-    inclination_right_s.rad = deg * Math::PI / 180
-end
 ui.inclinationBodySpin.connect(SIGNAL('valueChanged(int)')) do |deg|
     inclination_body_s.rad = deg * Math::PI / 180
-end
-ui.inclinationKeySpin.connect(SIGNAL('valueChanged(int)')) do |deg|
-    inclination_key_s.rad = deg * Math::PI / 180
 end
 ui.pressureSpin.connect(SIGNAL('valueChanged(double)')) do |bar|
     pressure_s.pascal = bar * 100000
@@ -90,11 +81,10 @@ end
 updates = Array[
     [inductive_left_s, inductive_left_p],
     [inductive_right_s, inductive_right_p],
-    [inductive_key_s, inductive_key_p],
+    [inductive_key_attached_s, inductive_key_attached_p],
+    [inductive_key_detached_s, inductive_key_detached_p],
     [ptu_s, ptu_p],
-    [inclination_right_s, inclination_right_p],
     [inclination_body_s, inclination_body_p],
-    [inclination_key_s, inclination_key_p],
     [pressure_s, pressure_p]]
 
 timer = Qt::Timer.new
