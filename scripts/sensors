@@ -69,18 +69,21 @@ Bundles.run \
 	end
     inclination_right  = Bundles.get 'inclination_right'
     inclination_right_bus.inclination_right.connect_to inclination_right.analog_input
+    inclination_right.direction_flag = true
     inclination_right.configure
     inclination_right.start
 
     inclination_key   = Bundles.get 'inclination_key'
     bus2.inclination_key.
 	connect_to inclination_key.analog_input
+    inclination_key.direction_flag = false
     inclination_key.configure
     inclination_key.start
 
     inclination_body = Bundles.get 'inclination_body'
     bus1.inclination_body.
 	connect_to inclination_body.analog_input
+    inclination_body.direction_flag = true
     inclination_body.configure
     inclination_body.start
 
@@ -101,13 +104,13 @@ Bundles.run \
     if bus2.has_port?('micron')
 	restart_on_exception(micron)
         connect_device_to_bus(bus2, micron)
-        micron.configure
-        micron.start
+        #micron.configure
+        #micron.start
     else
 	restart_on_exception(seaking)
         connect_device_to_bus(bus2, seaking)
-        seaking.configure
-        seaking.start
+        #seaking.configure
+        #seaking.start
     end
 
     Bundles.watch(
