@@ -2,6 +2,10 @@
 ip: '192.168.100.255'
 port: 3101
 
+--- name:modem
+ip: '192.168.0.255'
+port: 3101
+
 # ROSA1: '00:04:A3:31:00:14'
 # ROSA2: '00:04:A3:31:00:12'
 # ROSA3: '00:04:A3:31:00:15'
@@ -147,16 +151,16 @@ uarts:
       tx_type: PIN_DOUT_HIGH
       rx: 10
       enable_send: -1
-    # - name: micron
-    #   # The electronics has trouble with 115200, switch back to a slower
-    #   # baudrate
-    #   baud: 57600
-    #   mode: 0
-    #   uart_module: 0
-    #   tx: 4
-    #   tx_type: PIN_DOUT_HIGH
-    #   rx: 0
-    #   enable_send: -1
+    #- name: micron
+    #  # The electronics has trouble with 115200, switch back to a slower
+    #  # baudrate
+    #  baud: 57600
+    #  mode: 0
+    #  uart_module: 0
+    #  tx: 4
+    #  tx_type: PIN_DOUT_HIGH
+    #  rx: 0
+    #  enable_send: -1
     - name: seaking
       baud: 38400
       mode: 0
@@ -166,5 +170,37 @@ uarts:
       tx: 4
       tx_type: PIN_DOUT_HIGH
       rx: 0
+      enable_send: -1
+
+--- name:standart_operation
+mac: '00:04:A3:31:00:12' # TODO PUT THE CORRECT VALUE
+analog_ins:
+    - pin: 7
+      type: PIN_ANALOG_IN
+      name: inclination_body
+      analog_scale_factor: 2.9692
+digital_ins:
+    - pin: 9
+      type: PIN_DIN_PULLUP
+      name: inductive_left
+    - pin: 10
+      type: PIN_DIN_PULLUP
+      name: inductive_right
+    - pin: 11
+      type: PIN_DIN_PULLUP
+      name: inductive_key_attached
+    - pin: 12
+      type: PIN_DIN_PULLUP
+      name: inductive_key_detached
+uarts:
+    - name: pressure
+      mode: 0
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 9600
+      uart_module: 0
+      tx: 5
+      tx_type: PIN_DOUT_HIGH
+      rx: 1
       enable_send: -1
 

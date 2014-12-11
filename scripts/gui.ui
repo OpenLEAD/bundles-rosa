@@ -6,14 +6,30 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>454</width>
-    <height>241</height>
+    <width>652</width>
+    <height>285</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="3">
+    <widget class="QSpinBox" name="inclinationBodySpin">
+     <property name="suffix">
+      <string> deg</string>
+     </property>
+     <property name="minimum">
+      <number>-45</number>
+     </property>
+     <property name="maximum">
+      <number>45</number>
+     </property>
+     <property name="singleStep">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QPushButton" name="inductiveRightButton">
      <property name="text">
@@ -21,100 +37,6 @@
      </property>
      <property name="checkable">
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="inclinationRightLabel">
-     <property name="text">
-      <string>Inclination Right</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QSlider" name="inclinationRightSlide">
-     <property name="minimum">
-      <number>-45</number>
-     </property>
-     <property name="maximum">
-      <number>45</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="tickPosition">
-      <enum>QSlider::TicksBelow</enum>
-     </property>
-     <property name="tickInterval">
-      <number>15</number>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QSpinBox" name="inclinationRightSpin">
-     <property name="suffix">
-      <string> deg</string>
-     </property>
-     <property name="minimum">
-      <number>-45</number>
-     </property>
-     <property name="maximum">
-      <number>45</number>
-     </property>
-     <property name="singleStep">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QPushButton" name="inductiveKeyButton">
-     <property name="text">
-      <string>Inductive Key</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="inclinationKeyLabel">
-     <property name="text">
-      <string>Inclination Key</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QSlider" name="inclinationKeySlide">
-     <property name="minimum">
-      <number>-45</number>
-     </property>
-     <property name="maximum">
-      <number>45</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="tickPosition">
-      <enum>QSlider::TicksBelow</enum>
-     </property>
-     <property name="tickInterval">
-      <number>15</number>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QSpinBox" name="inclinationKeySpin">
-     <property name="suffix">
-      <string> deg</string>
-     </property>
-     <property name="minimum">
-      <number>-45</number>
-     </property>
-     <property name="maximum">
-      <number>45</number>
-     </property>
-     <property name="singleStep">
-      <number>1</number>
      </property>
     </widget>
    </item>
@@ -131,14 +53,14 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="0" column="1">
     <widget class="QLabel" name="inclinationBodyLabel">
      <property name="text">
       <string>Inclination Body</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
+   <item row="0" column="2">
     <widget class="QSlider" name="inclinationBodySlide">
      <property name="minimum">
       <number>-45</number>
@@ -157,30 +79,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
-    <widget class="QSpinBox" name="inclinationBodySpin">
-     <property name="suffix">
-      <string> deg</string>
-     </property>
-     <property name="minimum">
-      <number>-45</number>
-     </property>
-     <property name="maximum">
-      <number>45</number>
-     </property>
-     <property name="singleStep">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1" rowspan="2">
-    <widget class="QLabel" name="panLabel">
-     <property name="text">
-      <string>Pan</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2" rowspan="2">
+   <item row="2" column="2">
     <widget class="QSlider" name="panSlide">
      <property name="minimum">
       <number>0</number>
@@ -199,7 +98,14 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="3">
+   <item row="4" column="1">
+    <widget class="QLabel" name="tiltLabel">
+     <property name="text">
+      <string>Tilt</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
     <widget class="QSpinBox" name="panSpin">
      <property name="suffix">
       <string> deg</string>
@@ -215,14 +121,17 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
-    <widget class="QLabel" name="tiltLabel">
+   <item row="4" column="0">
+    <widget class="QPushButton" name="inductiveKeyAttachedButton">
      <property name="text">
-      <string>Tilt</string>
+      <string>Inductive Key Att.</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="6" column="2">
+   <item row="4" column="2">
     <widget class="QSlider" name="tiltSlide">
      <property name="minimum">
       <number>0</number>
@@ -241,7 +150,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="3">
+   <item row="4" column="3">
     <widget class="QSpinBox" name="tiltSpin">
      <property name="suffix">
       <string> deg</string>
@@ -257,14 +166,21 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="2" column="1">
+    <widget class="QLabel" name="panLabel">
+     <property name="text">
+      <string>Pan</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
     <widget class="QLabel" name="pressureLabel">
      <property name="text">
       <string>Pressure</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="2">
+   <item row="5" column="2">
     <widget class="QSlider" name="pressureSlide">
      <property name="minimum">
       <number>10</number>
@@ -283,7 +199,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="3">
+   <item row="5" column="3">
     <widget class="QDoubleSpinBox" name="pressureSpin">
      <property name="suffix">
       <string> bar</string>
@@ -302,42 +218,20 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="0">
+    <widget class="QPushButton" name="inductiveKeyDetachedButton">
+     <property name="text">
+      <string>Inductive Key Det.</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>inclinationRightSlide</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>inclinationRightSpin</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>221</x>
-     <y>89</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>407</x>
-     <y>89</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>inclinationRightSpin</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>inclinationRightSlide</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>407</x>
-     <y>89</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>221</x>
-     <y>89</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>panSlide</sender>
    <signal>valueChanged(int)</signal>
@@ -431,38 +325,6 @@
     <hint type="destinationlabel">
      <x>293</x>
      <y>122</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>inclinationKeySlide</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>inclinationKeySpin</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>293</x>
-     <y>55</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>405</x>
-     <y>55</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>inclinationKeySpin</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>inclinationKeySlide</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>405</x>
-     <y>55</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>293</x>
-     <y>55</y>
     </hint>
    </hints>
   </connection>

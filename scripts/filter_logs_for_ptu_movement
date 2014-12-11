@@ -1,0 +1,72 @@
+#! /usr/bin/env ruby
+
+require 'pocolog'
+require 'fileutils'
+include Pocolog
+
+## Filter the ptu position data stream and extract a list of [t0, t1] intervals
+# during which the PTU was not moving
+#
+# @return [Array<(Time,Time)>]
+def read_ptu_still_intervals
+file = Logfiles.new File.open("ptu.0.log")
+data_stream = file.stream("/ptu.joints_samples")
+# The ptu.joints_samples only store the valid data from the ptu
+# i.e there is only data with the joints stopped. So the filtering will be done
+# considering the change in the position
+current_position = "null"
+t0 = "null"
+tf = "null"
+result = Array.new
+
+data_stream.samples.each do |realtime, logical, sample|
+    if current_position != sample.elements[0].position
+        # Avoid storing elements that represent one position that is still in the transition,
+        # sometimes there is a single line of the log that has a intermediate position 	
+        if t0 != tf
+            result << [t0,tf]
+        end
+        current_position = sample.elements[0].position
+        t0 = sample.time
+    end
+    last_position = sample.elements[0].position
+    tf = sample.time
+end
+result << [t0,tf]
+result
+end
+
+## Filter a number of streams from a logfile to keep only the samples whose
+# timestamp is in one of the provided intervals. The intervals parameter is
+# supposed to be sorted, and the intervals disjunct.
+def filter_logs(intervals, logfile, *stream_names)
+    ## Now create a new log file with only the interesting parts
+    file = Logfiles.new File.open(logfile)
+    logfile.slice! ".0.log"
+    out_file = Logfiles.create File.join("filtered", logfile), file.registry
+    stream_names.each do |name|
+        data_stream = file.stream(name)
+        out_data_stream = out_file.create_stream data_stream.name, data_stream.type
+        remaining_intervals = intervals.dup
+        data_stream.samples.each do |realtime, logical, sample|
+            while !intervals.empty? && (sample.time > intervals.first[1])
+                intervals.shift
+            end
+            break if intervals.empty?
+            next if sample.time < intervals.first[0]
+
+            out_data_stream.write realtime, logical, sample
+        end
+    end
+end
+
+## Create a list of [t0, tt] intervals where the ptu does not move
+FileUtils.mkdir_p 'filtered'
+
+ptu_still_intervals = read_ptu_still_intervals
+filter_logs(ptu_still_intervals, 'ptu.0.log', '/ptu.orientation_samples')
+
+ptu_still_intervals = read_ptu_still_intervals
+filter_logs(ptu_still_intervals, 'micron.0.log', '/micron.sonar_beam')
+
+

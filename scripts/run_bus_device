@@ -10,9 +10,8 @@ bus_id     = ARGV.shift
 _, bus_name, bus_id = /(\w+)(\d)/.match(bus_id).to_a
 bus_task_name = "bus#{bus_id}"
 
-Bundles.run \
-    'bus_schremote::Task'   => bus_task_name,
-    task_model => task_name do
+Bundles.run 'bus_schremote::Task'   => bus_task_name do
+Bundles.run task_model => task_name do
 
     bus  = Bundles.get bus_task_name
     bus.apply_conf ['default', "#{bus_name}#{bus_id}"]
@@ -32,6 +31,7 @@ Bundles.run \
     task.start
 
     Bundles.watch(bus, task)
+end
 end
 
 
