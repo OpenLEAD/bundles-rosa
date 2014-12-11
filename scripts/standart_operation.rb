@@ -39,7 +39,7 @@ Bundles.run \
     'pressure_velki::Task' => 'pressure' do
 
     bus1   = Bundles.get 'bus1'
-    Orocos.conf.apply bus1, ['default', "#standart_operation"]
+    Orocos.conf.apply bus1, ['lead', "standart_operation"]
     
     bus1.configure
     Orocos.log_all
