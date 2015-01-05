@@ -139,6 +139,9 @@
       <property name="text">
        <string>Run Loop</string>
       </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
      </widget>
      <widget class="QSpinBox" name="increment">
       <property name="geometry">

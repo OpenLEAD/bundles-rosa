@@ -6,6 +6,10 @@ port: 3101
 ip: '192.168.0.255'
 port: 3101
 
+--- name:lead
+ip: '192.168.1.255'
+port: 3101
+
 # ROSA1: '00:04:A3:31:00:14'
 # ROSA2: '00:04:A3:31:00:12'
 # ROSA3: '00:04:A3:31:00:15'
@@ -100,18 +104,20 @@ analog_ins:
       type: PIN_ANALOG_IN
       analog_scale_factor: 2.9692
       name: inclination_body
-#digital_outs:
-#    - pin: 3
-#      type: PIN_DOUT_LOW
-#      name: pressure_enable_send_DO_NOT_USE
-#digital_ins:
-#    - pin: 9
-#      type: PIN_DIN_PULLUP
-#      name: inductive_left
-#    - pin: 11
-#      type: PIN_DIN_PULLUP
-#      name: inductive_right
+digital_outs:
+    - pin: 3
+      type: PIN_DOUT_LOW
+      name: pressure_enable_send_DO_NOT_USE
+digital_ins:
+    - pin: 9
+      type: PIN_DIN_PULLUP
+      name: inductive_left
+    - pin: 11
+      type: PIN_DIN_PULLUP
+      name: inductive_right
 uarts:
+
+    # RS485 connection
     - name: pressure
       mode: 0
       # The electronics has trouble with 115200, switch back to a slower
@@ -172,6 +178,24 @@ uarts:
 
 --- name:standard
 mac: '00:04:A3:31:00:14' 
+analog_ins:
+    - pin: 7
+      type: PIN_ANALOG_IN
+      name: inclination_body
+      analog_scale_factor: 2.9692
+digital_ins:
+    - pin: 8
+      type: PIN_DIN_PULLUP
+      name: inductive_right
+    - pin: 9
+      type: PIN_DIN_PULLUP
+      name: inductive_left
+    - pin: 10
+      type: PIN_DIN_PULLUP
+      name: inductive_key_detached
+    - pin: 11
+      type: PIN_DIN_PULLUP
+      name: inductive_key_attached
 uarts:
     - name: pressure
       mode: 0

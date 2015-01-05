@@ -1,4 +1,4 @@
-! /usr/bin/env ruby
+#! /usr/bin/env ruby
 
 require 'rock/bundles'
 require 'orocos/async'
@@ -45,12 +45,12 @@ Bundles.run \
     Orocos.log_all
     bus1.start
 
-    #inclination_body = Bundles.get 'inclination_body'
-    #bus1.inclination_body.
-	#connect_to inclination_body.analog_input
-    #inclination_body.direction_flag = true
-    #inclination_body.configure
-    #inclination_body.start
+    inclination_body = Bundles.get 'inclination_body'
+    bus1.inclination_body.
+	connect_to inclination_body.analog_input
+    inclination_body.direction_flag = true
+    inclination_body.configure
+    inclination_body.start
 
     pressure = Bundles.get 'pressure'
     restart_on_exception(pressure)
@@ -59,7 +59,7 @@ Bundles.run \
     pressure.start
 
     Bundles.watch(
-        bus1, pressure) do #, inclination_body
+        bus1, inclination_body, pressure) do
 	# Workaround bug in orocos.rb to get the on_state_change in restart_on_exception working
 	Orocos::Async.event_loop.step
     end
