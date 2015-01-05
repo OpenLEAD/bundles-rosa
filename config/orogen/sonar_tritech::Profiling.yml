@@ -3,32 +3,32 @@
 io_port: 'serial:///dev/ttyUSB0:9600'
 
 acquisition_timeout:
-  microseconds: 0
+  microseconds: 1000000
 
 config:
   left_limit:
-    rad: -3.141592653589792
+      rad: 1.65
   right_limit:
-    rad: 3.141592653589793
+      rad: -1.65
   angular_resolution:
-    rad: 0.08726646259971647
+    rad: 0.00393
   select_channel: 1
   frequency_chan1: 600000
   frequency_chan2: 1200000
-  max_distance: 15.0
-  min_distance: 1.0
+  max_distance: 2.5
+  min_distance: 0.3
   speed_of_sound: 1500.0
   gain: 0.2
   filt_gain: 0.01
-  continous: false
+  continous: true
 
-configure_timeout: 10.0
+configure_timeout: 20.0
 # the timeout on read. Defaults to one second
 io_read_timeout:
-  microseconds: 1000000
+  microseconds: 20000000
 # the interval at which the status port should be written. Defaults to one second
 io_status_interval:
   microseconds: 1000000
 # the timeout on write. Defaults to one second. Used only in direct I/O mode
 io_write_timeout:
-  microseconds: 1000000
+  microseconds: 2000000
