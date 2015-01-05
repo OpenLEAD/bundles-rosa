@@ -94,9 +94,12 @@ Bundles.run \
     pressure.start
 
     ptu = Bundles.get 'ptu'
+    restart_on_exception(ptu)
     connect_device_to_bus(bus2, ptu)
     ptu.configure
     ptu.start
+
+
 
     micron = Bundles.get 'micron'
     seaking = Bundles.get 'seaking'
