@@ -12,6 +12,9 @@ io_status_interval:
 io_write_timeout:
   microseconds: 1000000
 
+pan_plate_frame: ptu_pan_plate
+tilt_plate_frame: ptu_tilt_plate
+
 use_end_stops: false
 
 limits:
