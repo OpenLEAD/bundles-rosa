@@ -21,7 +21,6 @@ conf.each_static_transform do |trsf|
 end
 conf.each_dynamic_transform do |trsf|
     task_name, *port_name = *trsf.producer.split('.')
-    task_name = "#{Orocos::CORBA.name_service.ip}/#{task_name}"
     task = Orocos::Async.proxy(task_name)
     puts "looking for task #{task_name}"
     port = task.port(port_name.join('.'))
@@ -34,7 +33,7 @@ conf.each_dynamic_transform do |trsf|
         elsif trsf.to != sample.targetFrame
             puts "#{port.name}: supposed to provide #{trsf.from} => #{trsf.to} but targetFrame==#{sample.targetFrame}"
         else
-            w.setTransformation(trsf.from.dup, trsf.to.dup, sample.position.to_qt, sample.rotation.to_qt)
+            w.setTransformation(trsf.from.dup, trsf.to.dup, sample.position.to_qt, sample.orientation.to_qt)
         end
     end
 end
