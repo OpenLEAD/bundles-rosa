@@ -1,12 +1,12 @@
-# The frame names in this file are arbitrary !
-static_transform Eigen::Vector3.new(0.3, 0, 0),
-  "sonar" => "ptu_kongsberg_moving"
+static_transform Eigen::Quaterniond.from_angle_axis(Math::PI, Eigen::Vector3d::UnitX),
+    'body' => 'ptu_pan_plate'
 
-static_transform Eigen::Vector3.new(0.3, 0, 0),
-  "body" => "ptu_kongsberg_base"
+dynamic_transform 'ptu.transformation_samples',
+    'ptu_pan_plate' => 'ptu_tilt_plate'
 
-dynamic_transform "ptu.orientation_samples",
-  "ptu_kongsberg_base" => "ptu_kongsberg_moving"
+static_transform Eigen::Vector3.new(0, -0.5, -0.4), Eigen::Quaterniond.from_angle_axis(Math::PI/2, Eigen::Vector3::UnitX),
+    'ptu_tilt_plate' => 'ptu_mounting_bracket'
 
-static_transform Eigen::Vector3.new(0.3, 0, 0),
-    "body" => "depth"
+static_transform Eigen::Vector3.new(.5, .2, 0), Eigen::Quaterniond.from_angle_axis(Math::PI/2, Eigen::Vector3::UnitY),
+    'ptu_mounting_bracket' => 'seaking_transducer'
+
