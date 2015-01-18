@@ -1,0 +1,32 @@
+#! /usr/bin/env ruby
+
+require 'rock/bundles'
+require 'orocos/log'
+
+replay = Orocos::Log::Replay.open(ARGV.first)
+
+Bundles.run 'laserscan_mls_builder::Task' => 'mls_builder' do
+    ptu = Bundles.get 'ptu'
+    seaking = Bundles.get 'seaking'
+    mls_builder = Bundles.get 'mls_builder'
+
+    Bundles.log_all
+
+    mls_builder.laser_frame = 'seaking_sonar'
+    # The body is fixed in this setup
+    mls_builder.world_frame = 'body'
+
+    seaking.profiling_scan.connect_to mls_builder.laserscan,
+        type: :buffer, size: 20
+    ptu.orientation_samples.connect_to mls_builder.dynamic_transformations,
+        type: :buffer, size: 20 do |ptu_sample|
+        ptu_sample.position = Eigen::Vector3.new(0, 0, 0)
+        ptu_sample
+    end
+    Bundles.transformer.setup(ptu, seaking, mls_builder)
+
+    mls_builder.configure
+    mls_builder.start
+
+    replay.run
+end
