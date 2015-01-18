@@ -1,0 +1,51 @@
+#! /usr/bin/env ruby
+#
+require 'pp'
+
+HeadCommand = Struct.new \
+    :V3B_params, :head_control, :head_type,
+    :txn_ch1, :txn_ch2, :rxn_ch1, :rxn_ch2,
+    :pulse_length, :range_scale, :left_limit,
+    :right_limit, :ad_span, :ad_low, :initial_gain_ch1,
+    :initial_gain_ch2, :slope_ch1, :slope_ch2, :motor_step_delay_time,
+    :motor_step_angle_size, :ad_interval, :number_of_bins,
+    :max_ad_buff, :lockout_time, :minor_axis_dir,
+    :major_axis_pan, :crtl2, :scan_z, :ad_span_ch1,
+    :ad_span_ch2, :ad_low_ch1, :ad_low_ch2, :igain_ch1,
+    :igain_ch2, :adc_set_point_ch1, :adc_set_point_ch2,
+    :advanced_slope_ch1, :advanced_slope_ch2, :advanced_slope_delay_ch1,
+    :advanced_slope_delay_ch2
+
+commands = Array.new
+current_command = HeadCommand.new
+ARGF.each_line do |line|
+    line = line.chomp
+    case line.chomp
+    when /^#<struct HeadCommand/
+    when /^ (\w+)=(\d+|nil)(,|>)$/
+        name, value = $1, $2
+        value = if value != "nil"
+                    Integer(value)
+                end
+        current_command[name] = value
+        if $3 == ">"
+            commands << [current_command, []]
+            current_command = HeadCommand.new
+        end
+    else
+        if !line.strip.empty?
+            commands.last[1] << line
+        end
+    end
+end
+
+commands = commands.find_all { |cmd, _| cmd.V3B_params == 30 }
+# Reencode them in binary and then display it as hexadecimal
+commands.each do |cmd, comment|
+    raw = cmd.to_a.
+        pack('CS<CL<L<L<')
+    hex_str = raw.each_byte.map do |byte|
+        "%02x" % byte
+    end.join("")
+    puts "#{hex_str} #{comment.join(" ")}'"
+end
