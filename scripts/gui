@@ -107,36 +107,27 @@ main_ui.connect_to_task 'ptu' do |_|
 end
 
 runTimer = Qt::Timer.new
-scanTimer = Qt::Timer.new
 
 #runTimer.connect SIGNAL('timeout()'), main_ui.panSetSlide, SLOT('setValue(int)')
 #    getter: lambda { |value| (main_ui.panSetSlide.value + main_ui.increment.value) }
 
 runTimer.connect SIGNAL('timeout()') do
-    if (main_ui.panSetSlide.value - status_ui.panSlide.value).abs <= 3
-        if main_ui.panSetSlide.value > main_ui.endAngle.value
-            #main_ui.runButton.setChecked(false))
-            stop
-        else
-            scanTimer.start
-        end
+    current = main_ui.panSetSlide.value
+    step    = main_ui.stepAngle.value
+    if (main_ui.endAngle.value - current) < step
+        main_ui.runButton.setChecked(false)
+    else
+        main_ui.panSetSlide.setValue(current + step)
+    end
 end
 
-runButton.connect SIGNAL('toggled(bool)') do |flag|
+main_ui.runButton.connect SIGNAL('toggled(bool)') do |flag|
     if flag
-        runTimer.start(100)
-        scanTimer.setInterval(main_ui.periodSample.value ) #NEED CONVERSION
-        scanTimer.setSingleShot(true)
+        main_ui.panSetSlide.setValue(main_ui.startAngle.value)
+        runTimer.start(main_ui.periodSample.value * 1000)
     else
         runTimer.stop
     end
-end
-#        getter: lambda {Thread.new{ main_ui.startAngle.value.step(main_ui.endAngle.value, main_ui.increment.value) do |angle|
-#           ptu_cmd.elements[0].position =  angle * Math::PI / 180
-#           puts "#{angle}"
-#           ptu_cmd
-#           sleep Integer(main_ui.periodSample.value)
-#        end} }
 end
 
 Vizkit.exec
