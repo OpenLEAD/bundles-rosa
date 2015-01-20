@@ -1,0 +1,40 @@
+#! /usr/bin/env ruby
+
+require 'rock/bundles'
+
+bus_id, uart_name, io_name = *ARGV[0, 3]
+if !bus_id || !uart_name || !io_name
+    puts "mirror_bus_device bus_id uart_name io_name"
+    puts "  mirrors a serial I/O from a bus schremote to another I/O port"
+    puts ""
+    puts "  bus_id is the name of the configuration in the bus_schremote configuration file (e.g. blue1)"
+    puts "  uart_name is the name of the UART in the bus_schremote configuration (e.g. seaking)"
+    puts "  io_name is the path to the device file it should be mirrored to (e.g. /dev/ttyUSB1)"
+    exit 1
+end
+
+_, bus_name, bus_id = /(\w+)(\d)/.match(bus_id).to_a
+bus_task_name = "bus#{bus_id}"
+
+Bundles.initialize
+Bundles.run 'bus_schremote::Task' => bus_task_name, "iodrivers_base::Proxy" => 'proxy' do
+    bus  = Bundles.get bus_task_name
+    bus.apply_conf ['default', "#{bus_name}#{bus_id}"]
+    proxy = Bundles.get 'proxy'
+
+    # Configure the bus driver first, we need it to connect the micron
+    bus.configure
+    Orocos.log_all
+
+    bus.start
+
+    proxy.io_port = io_name
+    bus.port(uart_name).connect_to proxy.tx, :type => :buffer, :size => 1000
+    proxy.rx.connect_to bus.port("w#{uart_name}"), :type => :buffer, :size => 1000
+    proxy.configure
+    proxy.start
+
+    Bundles.watch(bus, proxy)
+end
+
+
