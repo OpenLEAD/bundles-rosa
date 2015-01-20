@@ -35,33 +35,22 @@ end
 main_ui.resize(900, 0)
 main_ui.show
 
-if config == 'blue'
-    status_ui.connect_to_task 'bus2' do |task|
-        task_states.add task
-        inductiveKeyAttachedButton.connect PORT('inductive_key_attached'), SLOT('setChecked(bool)'),
-            getter: lambda { |sample| sample.data != 0 }
-    end
-    status_ui.connect_to_task 'bus1' do |task|
-        task_states.add task
-        inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
-            getter: lambda { |sample| sample.data != 0 }
-        inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
-            getter: lambda { |sample| sample.data != 0 }
-    end
-else
-    status_ui.connect_to_task 'bus1' do |task|
-        task_states.add task
-        inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
-            getter: lambda { |sample| sample.data != 0 }
-        inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
-            getter: lambda { |sample| sample.data != 0 }
-        inductiveKeyAttachedButton.connect PORT('inductive_key_attached'), SLOT('setChecked(bool)'),
-            getter: lambda { |sample| sample.data != 0 }
-    end
-    status_ui.connect_to_task 'bus2' do |task|
-        task_states.add task
-    end
+
+status_ui.connect_to_task 'bus1' do |task|
+    task_states.add task
+    inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
+        getter: lambda { |sample| sample.data != 0 }
+    inductiveRightButton.connect PORT('inductive_right'), SLOT('setChecked(bool)'),
+        getter: lambda { |sample| sample.data != 0 }
+    inductiveKeyAttachedButton.connect PORT('inductive_key_attached'), SLOT('setChecked(bool)'),
+        getter: lambda { |sample| sample.data != 0 }
+    inductiveKeyDetachedButton.connect PORT('inductive_key_detached'), SLOT('setChecked(bool)'),
+        getter: lambda { |sample| sample.data != 0 }
 end
+status_ui.connect_to_task 'bus2' do |task|
+    task_states.add task
+end
+
 
 status_ui.connect_to_task 'micron' do |task|
     task_states.add task
