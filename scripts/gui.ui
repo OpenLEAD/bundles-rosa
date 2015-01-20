@@ -20,10 +20,10 @@
       <string> deg</string>
      </property>
      <property name="minimum">
-      <number>-45</number>
+      <number>-90</number>
      </property>
      <property name="maximum">
-      <number>45</number>
+      <number>90</number>
      </property>
      <property name="singleStep">
       <number>1</number>
@@ -63,10 +63,10 @@
    <item row="0" column="2">
     <widget class="QSlider" name="inclinationBodySlide">
      <property name="minimum">
-      <number>-45</number>
+      <number>-90</number>
      </property>
      <property name="maximum">
-      <number>45</number>
+      <number>90</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -186,7 +186,7 @@
       <number>10</number>
      </property>
      <property name="maximum">
-      <number>60</number>
+      <number>500</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -211,7 +211,7 @@
       <double>1.000000000000000</double>
      </property>
      <property name="maximum">
-      <double>6.000000000000000</double>
+      <double>50.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>0.100000000000000</double>
