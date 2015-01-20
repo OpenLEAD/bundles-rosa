@@ -3,10 +3,11 @@
 require 'rock/bundle'
 require 'vizkit'
 
-Bundles.initialize
+Bundles.initialize 'rosa_mock'
 
 # Note on notations:
-#   _p suffix means port
+#   _p suffix means output port
+#   _pi suffix means input port
 #   _s suffix means sample
 
 bus = Orocos::RubyTaskContext.new 'bus1'
@@ -15,8 +16,14 @@ inductive_right_p = bus.create_output_port 'inductive_right', '/raw_io/Digital'
 inductive_key_attached_p   = bus.create_output_port 'inductive_key_attached', '/raw_io/Digital'
 inductive_key_detached_p   = bus.create_output_port 'inductive_key_detached', '/raw_io/Digital'
 
+seaking = Orocos::RubyTaskContext.new 'seaking'
+seaking_p = seaking.create_output_port 'profiling_scan',
+    '/base/samples/LaserScan'
+
 ptu = Orocos::RubyTaskContext.new 'ptu'
 ptu_p = ptu.create_output_port 'joints_samples',
+    '/base/samples/Joints'
+ptu_pi = ptu.create_input_port 'joints_cmd',
     '/base/samples/Joints'
 
 inclination_body = Orocos::RubyTaskContext.new 'inclination_body'
@@ -29,6 +36,15 @@ pressure_p = pressure.create_output_port 'pressure_samples',
 
 ui = Vizkit.default_loader.load Bundles.find_file('scripts', 'gui.ui')
 ui.window_title = "ROSA - Mock Test UI"
+
+# PTU feedback
+
+ui.connect_to_task 'ptu' do |_|
+    panSpin.connect PORT('joints_cmd'), SLOT('setValue(int)'),
+        getter: lambda { |sample| Integer(sample.elements[0].position * 180 / Math::PI) }
+    tiltSpin.connect PORT('joints_cmd'), SLOT('setValue(int)'),
+        getter: lambda { |sample| Integer(sample.elements[1].position * 180 / Math::PI) }
+end
 
 # Connect the slide and the spin
 ui.pressureSlide.connect(SIGNAL('valueChanged(int)')) do |value|
@@ -51,6 +67,25 @@ inclination_body_s = Types::Base::Angle.new(rad: 0)
 pressure_s = Types::Base::Samples::Pressure.new(
     time: Time.now,
     pascal: 100000)
+
+# Scan Button
+std_scan = Types::Base::Samples::LaserScan.new
+
+scan_timer = Qt::Timer.new
+scan_timer.connect(SIGNAL('timeout()')) do
+    if std_scan.respond_to?(:time)
+        std_scan.time = Time.now
+    end
+    seaking_p.write std_scan
+end
+
+ui.sendScan.connect(SIGNAL('toggled(bool)')) do |state|
+    if state
+        scan_timer.start(100)
+    else
+        scan_timer.stop
+    end
+end
 
 # Connect the UI to the tasks
 ui.inductiveLeftButton.connect(SIGNAL('toggled(bool)')) do |state|

@@ -2,6 +2,7 @@
 #
 require 'rock/bundle'
 require 'vizkit'
+require_relative 'autoscan_state_machine'
 
 config = 'green'
 options = OptionParser.new do |opt|
@@ -14,11 +15,11 @@ end
 options.parse ARGV
 
 
-Bundles.initialize
+Bundles.initialize 'rosa_gui'
 Orocos.load_typekit 'base'
 Orocos.load_typekit 'raw_io'
 
-main_ui   = Vizkit.default_loader.load Bundles.find_file('scripts', 'cmd_status.ui')
+main_ui = Vizkit.default_loader.load Bundles.find_file('scripts', 'cmd_status.ui')
 main_ui.window_title = "ROSA - Control and Status Debugging UI"
 task_states = Vizkit.default_loader.StateViewer
 status_ui = Vizkit.default_loader.load Bundles.find_file('scripts', 'gui.ui')
@@ -35,7 +36,6 @@ end
 main_ui.resize(900, 0)
 main_ui.show
 
-
 status_ui.connect_to_task 'bus1' do |task|
     task_states.add task
     inductiveLeftButton.connect PORT('inductive_left'), SLOT('setChecked(bool)'),
@@ -50,7 +50,6 @@ end
 status_ui.connect_to_task 'bus2' do |task|
     task_states.add task
 end
-
 
 status_ui.connect_to_task 'micron' do |task|
     task_states.add task
@@ -79,11 +78,11 @@ status_ui.connect_to_task 'ptu' do |task|
     task.on_state_change do |state|
         if state == :RUNNING
             listener = task.port('joints_samples').on_data do |sample|
-        	main_ui.panSetSlide.value = sample.elements[0].position * 180 / Math::PI
-        	main_ui.tiltSetSlide.value = sample.elements[1].position * 180 / Math::PI
-        	main_ui.panSetSlide.enabled = true
-        	main_ui.tiltSetSlide.enabled = true
-        	listener.stop
+            	main_ui.panSetSlide.value = sample.elements[0].position * 180 / Math::PI
+            	main_ui.tiltSetSlide.value = sample.elements[1].position * 180 / Math::PI
+            	main_ui.panSetSlide.enabled = true
+            	main_ui.tiltSetSlide.enabled = true
+            	listener.stop
             end
             initialize_command_from_next_joint_sample = true
         else
@@ -97,29 +96,47 @@ ptu_cmd = Types::Base::Commands::Joints.new(
     time: Time.now,
     names: %w{pan tilt},
     elements: [ Hash[position: 0], Hash[position: 0] ])
-main_ui.connect_to_task 'ptu' do |_|
+main_ui.connect_to_task 'ptu' do |task|
     main_ui.panSetSlide.enabled = false
+    
     panSetSlide.connect SIGNAL('valueChanged(int)'), PORT('joints_cmd'),
-        getter: lambda { |value| ptu_cmd.elements[0].position = value * Math::PI / 180; ptu_cmd }
+        getter: lambda { |value| ptu_cmd.elements[0].position = value * Math::PI / 180; pp ptu_cmd; ptu_cmd }
     main_ui.tiltSetSlide.enabled = false
     tiltSetSlide.connect SIGNAL('valueChanged(int)'), PORT('joints_cmd'),
         getter: lambda { |value| ptu_cmd.elements[1].position = value * Math::PI / 180; pp ptu_cmd; ptu_cmd }
 end
 
+
+
 state_machine = nil
 main_ui.runButton.connect SIGNAL('toggled(bool)') do |flag|
     pan_range = AutoscanStateMachine::Range.new(
-        main_ui.panSetSlide.value,
-        main_ui.panEndAngle.value,
-        main_ui.panStepAngle.value)
+        main_ui.panSetSlide.value * Math::PI / 180,
+        main_ui.panEndAngle.value * Math::PI / 180,
+        main_ui.panStepAngle.value * Math::PI / 180)
     tilt_range = AutoscanStateMachine::Range.new(
-        main_ui.tiltSetSlide.value,
-        main_ui.tiltEndAngle.value,
-        main_ui.tiltStepAngle.value)
+        main_ui.tiltSetSlide.value * Math::PI / 180,
+        main_ui.tiltEndAngle.value * Math::PI / 180,
+        main_ui.tiltStepAngle.value * Math::PI / 180)
 
     # Assign the state machine to a variable to avoid having it garbage
     # collected
     state_machine = AutoscanStateMachine.run(0.1, pan_range, tilt_range)
+    state_machine.connect SIGNAL('moveJoints(double,double)') do |cmd_pan, cmd_tilt|
+        main_ui.panSetSlide.setValue(Integer( cmd_pan * 180 / Math::PI ))
+        main_ui.tiltSetSlide.setValue(Integer( cmd_tilt * 180 / Math::PI ))
+    end
+
+    #Connecting state_machine SLOTS
+    Orocos::Async.proxy('ptu').port('joints_samples').on_data do |sample|
+        state_machine.update_position(sample.elements[0].position, sample.elements[1].position)  
+    end
+    Orocos::Async.proxy('seaking').port('profiling_scan').on_data do
+        state_machine.received_scan
+    end
+    Orocos::Async.proxy('micron').port('sonar_beam').on_data do
+        state_machine.received_scan
+    end
 end
 
 Vizkit.exec

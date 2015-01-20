@@ -118,7 +118,7 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>50</height>
+       <height>100</height>
       </size>
      </property>
      <property name="frameShape">
@@ -141,12 +141,13 @@
       <item>
        <widget class="QLabel" name="panSetLabel_2">
         <property name="text">
-         <string>Increment the pan angle by</string>
+         <string>Increment 
+the pan angle by</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="stepAngle">
+       <widget class="QSpinBox" name="panStepAngle">
         <property name="minimum">
          <number>-360</number>
         </property>
@@ -161,12 +162,14 @@
       <item>
        <widget class="QLabel" name="panSetLabel_4">
         <property name="text">
-         <string>degrees from the current pan position to</string>
+         <string>degrees from 
+the current pan 
+position to</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="endAngle">
+       <widget class="QSpinBox" name="panEndAngle">
         <property name="maximum">
          <number>360</number>
         </property>
@@ -190,11 +193,26 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="panSetLabel_6">
+       <widget class="QLabel" name="tiltSetLabel_2">
         <property name="text">
-         <string>seconds</string>
+         <string>seconds, then 
+increases tilt by</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="tiltStepAngle"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="tiltSetLabel_3">
+        <property name="text">
+         <string>until tilt 
+angle equals</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="tiltEndAngle"/>
       </item>
      </layout>
     </widget>
@@ -204,6 +222,8 @@
      <property name="title">
       <string>Status</string>
      </property>
+     <zorder>frame</zorder>
+     <zorder>cmdGroup</zorder>
     </widget>
    </item>
   </layout>

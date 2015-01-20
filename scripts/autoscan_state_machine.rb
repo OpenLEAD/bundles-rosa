@@ -10,6 +10,7 @@ class AutoscanStateMachine < Qt::Object
     attr_reader :position_reached_tolerance
     attr_reader :position_reached_timeout
     attr_reader :full_scans_per_position
+    attr_reader :run_timer
 
     # @option options [Float] :position_reached_tolerance (3 degrees) Tolerance
     #   to decide whether a target position has been reached, in radians.
@@ -100,6 +101,7 @@ class AutoscanStateMachine < Qt::Object
 
     def process
         if state == :wait_for_position_reading
+            puts "wait_for_position_reading"
             if wait_for_position_reading
                 @moved = false
                 wait_for_position
@@ -107,6 +109,7 @@ class AutoscanStateMachine < Qt::Object
             else return :wait_for_position_reading
             end
         elsif state == :wait_for_position
+            puts "wait_for_position #{target_position_reached?} #{cmd_pan} #{pan} #{cmd_tilt} #{tilt} #{moved?} #{position_reached_start}"
             if wait_for_position
                 @received_scans = 0
                 return :wait_for_scan
@@ -143,18 +146,20 @@ class AutoscanStateMachine < Qt::Object
     end
 
     def run(period)
+        start
         @run_timer = Qt::Timer.new
         run_timer.connect SIGNAL('timeout()') do |flag|
             state = update
+            puts "in state #{state.inspect}"
             if !state
-                run_timer.stop
+                stop
             end
         end
         run_timer.start(Integer(period * 1000))
     end
 
     def stop
-        @run_timer.stop
+        run_timer.stop
     end
 
     def self.run(period, pan_range, tilt_range)
