@@ -107,7 +107,6 @@ main_ui.connect_to_task 'ptu' do |task|
 end
 
 
-
 state_machine = nil
 main_ui.runButton.connect SIGNAL('toggled(bool)') do |flag|
     pan_range = AutoscanStateMachine::Range.new(
@@ -122,9 +121,21 @@ main_ui.runButton.connect SIGNAL('toggled(bool)') do |flag|
     # Assign the state machine to a variable to avoid having it garbage
     # collected
     state_machine = AutoscanStateMachine.run(0.1, pan_range, tilt_range)
+    autoscan_logger = 
+	begin Bundles.get 'ptu_Logger'
+	rescue Orocos::NotFound
+	end
     state_machine.connect SIGNAL('moveJoints(double,double)') do |cmd_pan, cmd_tilt|
         main_ui.panSetSlide.setValue(Integer( cmd_pan * 180 / Math::PI ))
         main_ui.tiltSetSlide.setValue(Integer( cmd_tilt * 180 / Math::PI ))
+    end
+    if autoscan_logger
+        state_machine.connect SIGNAL('moveJoints(double,double)') do |cmd_pan, cmd_tilt|
+	    autoscan_logger.log_annotations Time.now, 'PTU_MOVING', "#{cmd_pan} #{cmd_tilt}"
+	end
+        state_machine.connect SIGNAL('scanning()') do
+	    autoscan_logger.log_annotations Time.now, 'PTU_MOVED', "#{state_machine.pan} #{state_machine.tilt}"
+	end
     end
 
     #Connecting state_machine SLOTS

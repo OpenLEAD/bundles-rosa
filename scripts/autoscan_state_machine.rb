@@ -112,6 +112,7 @@ class AutoscanStateMachine < Qt::Object
             puts "wait_for_position #{target_position_reached?} #{cmd_pan} #{pan} #{cmd_tilt} #{tilt} #{moved?} #{position_reached_start}"
             if wait_for_position
                 @received_scans = 0
+		emit scanning
                 return :wait_for_scan
             else
                 return :wait_for_position
@@ -171,5 +172,6 @@ class AutoscanStateMachine < Qt::Object
     slots 'update_position(double, double)'
     slots 'received_scan()'
     signals 'moveJoints(double,double)'
+    signals 'scanning()'
 end
 
