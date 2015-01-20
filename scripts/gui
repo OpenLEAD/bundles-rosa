@@ -106,28 +106,20 @@ main_ui.connect_to_task 'ptu' do |_|
         getter: lambda { |value| ptu_cmd.elements[1].position = value * Math::PI / 180; pp ptu_cmd; ptu_cmd }
 end
 
-runTimer = Qt::Timer.new
-
-#runTimer.connect SIGNAL('timeout()'), main_ui.panSetSlide, SLOT('setValue(int)')
-#    getter: lambda { |value| (main_ui.panSetSlide.value + main_ui.increment.value) }
-
-runTimer.connect SIGNAL('timeout()') do
-    current = main_ui.panSetSlide.value
-    step    = main_ui.stepAngle.value
-    if (main_ui.endAngle.value - current) < step
-        main_ui.runButton.setChecked(false)
-    else
-        main_ui.panSetSlide.setValue(current + step)
-    end
-end
-
+state_machine = nil
 main_ui.runButton.connect SIGNAL('toggled(bool)') do |flag|
-    if flag
-        main_ui.panSetSlide.setValue(main_ui.startAngle.value)
-        runTimer.start(main_ui.periodSample.value * 1000)
-    else
-        runTimer.stop
-    end
+    pan_range = AutoscanStateMachine::Range.new(
+        main_ui.panSetSlide.value,
+        main_ui.panEndAngle.value,
+        main_ui.panStepAngle.value)
+    tilt_range = AutoscanStateMachine::Range.new(
+        main_ui.tiltSetSlide.value,
+        main_ui.tiltEndAngle.value,
+        main_ui.tiltStepAngle.value)
+
+    # Assign the state machine to a variable to avoid having it garbage
+    # collected
+    state_machine = AutoscanStateMachine.run(0.1, pan_range, tilt_range)
 end
 
 Vizkit.exec
