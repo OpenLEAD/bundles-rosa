@@ -32,28 +32,18 @@ def restart_on_exception(task)
     end
 end
 
-config = 'blue'
-options = OptionParser.new do |opt|
-    opt.on '--green', 'run with the green board (default is to run for the blue board)' do |flag|
-	if flag
-	    config = 'green'
-	end
-    end
-end
-options.parse ARGV
-
 Bundles.run \
-    'busses',
+    'bus_schremote::Task' => ['bus1', 'bus2'],#'busses',
     'inclinometer::Task' => ['inclination_right', 'inclination_body', 'inclination_key'],
     'pressure_velki::Task' => 'pressure',
     'ptu_kongsberg_oe10::Task' => 'ptu',
     'sonar_tritech::Micron' => 'micron',
-    'sonar_tritech::Profiling' => 'seaking' do
+    'sonar_tritech::Profiling' => 'seaking' do # , => :output '%m-%p.log', :valgrind => ['pressure','bus1']
 
     bus1   = Bundles.get 'bus1'
-    Orocos.conf.apply bus1, ['default', "#{config}1"]
+    Orocos.conf.apply bus1, ['default', "blue1"]
     bus2   = Bundles.get 'bus2'
-    Orocos.conf.apply bus2, ['default', "#{config}2"]
+    Orocos.conf.apply bus2, ['default', "blue2"]
 
 # Configure the bus driver first, we need it to connect the micron
     bus1.configure
@@ -63,27 +53,11 @@ Bundles.run \
     bus1.start
     bus2.start
 
-    inclination_right_bus =
-	if config == 'green' then bus1
-	else bus2
-	end
-    inclination_right  = Bundles.get 'inclination_right'
-    inclination_right_bus.inclination_right.connect_to inclination_right.analog_input
-    inclination_right.direction_flag = true
-    inclination_right.configure
-    inclination_right.start
-
-    inclination_key   = Bundles.get 'inclination_key'
-    bus2.inclination_key.
-	connect_to inclination_key.analog_input
-    inclination_key.direction_flag = false
-    inclination_key.configure
-    inclination_key.start
-
     inclination_body = Bundles.get 'inclination_body'
-    bus1.inclination_body.
+    bus2.inclination_body.
 	connect_to inclination_body.analog_input
     inclination_body.direction_flag = true
+    inclination_body.offset = 4
     inclination_body.configure
     inclination_body.start
 
@@ -117,8 +91,7 @@ Bundles.run \
     end
 
     Bundles.watch(
-        bus1, bus2,
-        inclination_right, inclination_body, inclination_key,
+        bus1, bus2, inclination_body, 
         pressure, micron, seaking, ptu
     ) do
 	# Workaround bug in orocos.rb to get the on_state_change in restart_on_exception working
