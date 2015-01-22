@@ -8,6 +8,7 @@ port: 3101
 
 --- name:blue1
 mac: '00:04:A3:31:00:14'
+reference_voltage: 3.25
 #analog_ins:
 #    - pin: 7
 #      type: PIN_ANALOG_IN
@@ -41,6 +42,7 @@ uarts:
 
 --- name:blue2
 mac: '00:04:A3:31:00:12'
+reference_voltage: 3.25
 fail_on_uart_buffer_overflow: false
 analog_ins:
     - pin: 7
