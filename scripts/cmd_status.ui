@@ -72,10 +72,10 @@
       <item row="1" column="1">
        <widget class="QSlider" name="tiltSetSlide">
         <property name="minimum">
-         <number>20</number>
+         <number>0</number>
         </property>
         <property name="maximum">
-         <number>270</number>
+         <number>360</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -94,10 +94,10 @@
          <string> deg</string>
         </property>
         <property name="minimum">
-         <number>20</number>
+         <number>0</number>
         </property>
         <property name="maximum">
-         <number>270</number>
+         <number>360</number>
         </property>
         <property name="singleStep">
          <number>10</number>
