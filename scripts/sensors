@@ -57,7 +57,7 @@ Bundles.run \
     bus2.inclination_body.
 	connect_to inclination_body.analog_input
     inclination_body.direction_flag = true
-    inclination_body.offset = 4
+    inclination_body.offset = 0
     inclination_body.configure
     inclination_body.start
 
