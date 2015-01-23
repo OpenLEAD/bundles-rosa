@@ -15,7 +15,7 @@ io_status_interval:
 io_write_timeout:
   microseconds: 1000000
 
-sensor_frame: 'body_horizontal'
+sensor_frame: 'world_inclinometer_roll'
 world_frame: 'surface'
 
 --- name:direct

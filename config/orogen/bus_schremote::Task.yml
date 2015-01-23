@@ -49,6 +49,10 @@ analog_ins:
       type: PIN_ANALOG_IN
       name: inclination_body
       analog_scale_factor: 3.19
+    - pin: 9
+      type: PIN_ANALOG_IN
+      name: inclination_body_2
+      analog_scale_factor: 3.19
 uarts:
     - name: ptu
       # The electronics has trouble with 115200, switch back to a slower

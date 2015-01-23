@@ -1,0 +1,20 @@
+
+--- name:roll
+
+body_frame: inclinometer_roll
+world_frame: world_inclinometer_roll
+
+direction_flag: false
+
+offset: 0
+
+--- name:pitch
+
+body_frame: inclinometer_pitch
+world_frame: world_inclinometer_pitch
+
+direction_flag: false
+
+offset: -0.57
+
+
