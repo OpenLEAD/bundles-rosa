@@ -96,6 +96,8 @@ Bundles.run \
         #seaking.start
     end
 
+    Bundles.transformer.setup(pressure, inclination_body, ptu, seaking)
+
     Bundles.watch(
         bus1, bus2, inclination_body,inclination_body_2, 
         pressure, micron, seaking, ptu
