@@ -15,6 +15,7 @@ end
 options.parse ARGV
 
 
+Bundles.public_logs = false
 Bundles.initialize 'rosa_gui'
 Orocos.load_typekit 'base'
 Orocos.load_typekit 'raw_io'
