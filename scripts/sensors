@@ -56,10 +56,16 @@ Bundles.run \
     inclination_body = Bundles.get 'inclination_body'
     bus2.inclination_body.
 	connect_to inclination_body.analog_input
-    inclination_body.direction_flag = true
-    inclination_body.offset = 0
+    Orocos.conf.apply inclination_body, ['default', 'roll']
     inclination_body.configure
     inclination_body.start
+
+    inclination_body_2 = Bundles.get 'inclination_body_2'
+    bus2.inclination_body_2.
+	connect_to inclination_body_2.analog_input
+    Orocos.conf.apply inclination_body_2, ['default', 'pitch']
+    inclination_body_2.configure
+    inclination_body_2.start
 
     pressure = Bundles.get 'pressure'
     restart_on_exception(pressure)
@@ -91,7 +97,7 @@ Bundles.run \
     end
 
     Bundles.watch(
-        bus1, bus2, inclination_body, 
+        bus1, bus2, inclination_body,inclination_body_2, 
         pressure, micron, seaking, ptu
     ) do
 	# Workaround bug in orocos.rb to get the on_state_change in restart_on_exception working
