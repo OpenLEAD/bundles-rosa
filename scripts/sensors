@@ -34,7 +34,7 @@ end
 
 Bundles.run \
     'bus_schremote::Task' => ['bus1', 'bus2'],#'busses',
-    'inclinometer::Task' => ['inclination_right', 'inclination_body', 'inclination_key'],
+    'inclinometer::Task' => ['inclination_body','inclination_body_2'],
     'pressure_velki::Task' => 'pressure',
     'ptu_kongsberg_oe10::Task' => 'ptu',
     'sonar_tritech::Micron' => 'micron',
