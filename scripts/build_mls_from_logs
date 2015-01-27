@@ -24,6 +24,12 @@ Bundles.run 'laserscan_mls_builder::Task' => 'mls_builder' do
     ptu = Bundles.get 'ptu'
     seaking = Bundles.get 'seaking'
     mls_builder = Bundles.get 'mls_builder'
+    if !with_gui
+        # No need to output the environment on the port if we actually are not
+        # using it
+        mls_builder.envire_period = 0
+    end
+        
     100.times do |i|
         path = File.join(log_dir, "mls-#{i}")
         if !File.exists?(path)
@@ -33,8 +39,6 @@ Bundles.run 'laserscan_mls_builder::Task' => 'mls_builder' do
         end
     end
     mls_builder.excluded_bounding_boxes = excluded_bounding_boxes
-
-    Bundles.log_all
 
     mls_builder.laser_frame = 'seaking_transducer'
     mls_builder.world_frame = 'reference'
