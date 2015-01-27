@@ -1,7 +1,8 @@
-require 'eigen'
+dynamic_transform 'scan_aligner.transform_samples',
+    'scan_ref' => 'surface_center'
 
-# Mounting angle between the PTU's tilt plate and the mounting bracket
-TILT_PLATE_TO_MOUNTING_BRACKET_ANGLE = - Math::PI / 4
+static_transform Eigen::Quaternion.from_angle_axis(-Math::PI/2, Eigen::Vector3.UnitZ),
+    'surface' => 'scan_ref'
 
 dynamic_transform 'pressure.depth_samples',
     'surface' => 'world_inclinometer_roll'
@@ -20,7 +21,7 @@ static_transform Eigen::Quaternion.from_angle_axis(-Math::PI / 2, Eigen::Vector3
     'body' => 'inclinometer_pitch'
     
 ## The PTU is mounted upside down
-static_transform Eigen::Vector3.new(0, 0, 1),
+static_transform Eigen::Vector3.new(0.3, 0.3, -0.5), Eigen::Quaternion.from_angle_axis(-Math::PI/2, Eigen::Vector3.UnitY) * Eigen::Quaternion.from_angle_axis(Math::PI, Eigen::Vector3.UnitX) * Eigen::Quaternion.from_angle_axis(-Math::PI/2, Eigen::Vector3.UnitZ),
     'body' => 'ptu_tilt_plate'
 
 dynamic_transform 'ptu.transformation_samples',
