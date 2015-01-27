@@ -1,32 +1,63 @@
 #! /usr/bin/env ruby
 
 require 'rock/bundles'
-require 'orocos/log'
+require 'vizkit'
 
-replay = Orocos::Log::Replay.open(ARGV.first)
+Bundles.initialize
+
+excluded_bounding_boxes = Array.new
+with_gui = true
+option_parser = OptionParser.new do |opt|
+    opt.on '--exclude=BOX', String do |arg|
+        min_x, min_y, min_z, max_x, max_y, max_z = arg.split(',').map { |v| Float(v) }
+        box = Types::LaserscanMlsBuilder::Box.new(min: Eigen::Vector3.new(min_x, min_y, min_z), max: Eigen::Vector3.new(max_x, max_y, max_z))
+        excluded_bounding_boxes << box
+    end
+    opt.on '--[no-]gui' do |flag|
+        with_gui = flag
+    end
+end
+log_dir = option_parser.parse(ARGV)
+replay = Orocos::Log::Replay.open(log_dir)
 
 Bundles.run 'laserscan_mls_builder::Task' => 'mls_builder' do
     ptu = Bundles.get 'ptu'
     seaking = Bundles.get 'seaking'
     mls_builder = Bundles.get 'mls_builder'
+    100.times do |i|
+        path = File.join(log_dir, "mls-#{i}")
+        if !File.exists?(path)
+            mls_builder.envire_path = File.join(Dir.pwd, path)
+            puts "MLS output as #{path}"
+            break
+        end
+    end
+    mls_builder.excluded_bounding_boxes = excluded_bounding_boxes
 
     Bundles.log_all
 
-    mls_builder.laser_frame = 'seaking_sonar'
-    # The body is fixed in this setup
-    mls_builder.world_frame = 'body'
+    mls_builder.laser_frame = 'seaking_transducer'
+    mls_builder.world_frame = 'reference'
+    seaking.profiling_scan.frame = 'seaking_transducer'
+    mls_builder.envire_data.frame = 'reference'
 
     seaking.profiling_scan.connect_to mls_builder.laserscan,
         type: :buffer, size: 20
-    ptu.orientation_samples.connect_to mls_builder.dynamic_transformations,
-        type: :buffer, size: 20 do |ptu_sample|
-        ptu_sample.position = Eigen::Vector3.new(0, 0, 0)
-        ptu_sample
-    end
+    ptu.transformation_samples.connect_to mls_builder.dynamic_transformations,
+        type: :buffer, size: 20
+
     Bundles.transformer.setup(ptu, seaking, mls_builder)
 
     mls_builder.configure
     mls_builder.start
 
-    replay.run
+    if with_gui
+        Vizkit.display seaking.profiling_scan, widget: 'LaserScanVisualization'
+        Vizkit.display mls_builder.envire_data
+        Vizkit.control replay
+        Vizkit.exec
+    else
+        replay.run
+    end
 end
+
