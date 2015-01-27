@@ -1,0 +1,160 @@
+#! /usr/bin/env ruby
+
+require 'pocolog'
+
+STDOUT.sync = true
+
+HeadCommand = Struct.new \
+    :V3B_params, :head_control, :head_type,
+    :txn_ch1, :txn_ch2, :rxn_ch1, :rxn_ch2,
+    :pulse_length, :range_scale, :left_limit,
+    :right_limit, :ad_span, :ad_low, :initial_gain_ch1,
+    :initial_gain_ch2, :slope_ch1, :slope_ch2, :motor_step_delay_time,
+    :motor_step_angle_size, :ad_interval, :number_of_bins,
+    :max_ad_buff, :lockout_time, :minor_axis_dir,
+    :major_axis_pan, :crtl2, :scan_z, :ad_span_ch1,
+    :ad_span_ch2, :ad_low_ch1, :ad_low_ch2, :igain_ch1,
+    :igain_ch2, :adc_set_point_ch1, :adc_set_point_ch2,
+    :advanced_slope_ch1, :advanced_slope_ch2, :advanced_slope_delay_ch1,
+    :advanced_slope_delay_ch2
+
+class HeadCommand
+    PACKET_ID = 19
+end
+
+def extract_packet(io)
+    packet_start = io.read(1)
+    return if !packet_start
+
+    if packet_start != '@'
+        puts "packet start mismatch, got #{packet_start} expected @"
+        return
+    end
+
+    header = io.read(12)
+    packet_payload_size_hex, packet_payload_size, dummy255, device_type, dummy, packet_type, sequence_end, device_type2 =
+        header.unpack('a4S<CCCCCC')
+    if packet_start != '@'
+        puts "packet start mismatch, got #{packet_start} expected @"
+        return
+    elsif dummy255 != 0xFF
+        puts "dummy byte mismatch, got #{dummy255.to_s(16)} expected 255"
+        return
+    elsif device_type != device_type2
+        puts "duplicated device type mismatch #{device_type} != #{device_type2}"
+        return
+    elsif sequence_end != 0x80
+        puts "sequence end byte was expected to be 0x80 but is 0x#{sequence_end.to_s(16)}"
+        return
+    end
+
+    user_payload_size = packet_payload_size - 8
+    payload = io.read(user_payload_size)
+
+    return packet_type, payload
+end
+
+
+def each_packet(io, position_to_time)
+    while !io.eof?
+        time = position_to_time[io.tell]
+        packet_type, payload = extract_packet(io)
+        if !packet_type
+            next
+        end
+
+        puts "packet type #{packet_type}"
+        yield(time, packet_type, payload)
+    end
+end
+
+def parse_head_command(data)
+    HeadCommand.new(*data.unpack('CS<CL<L<L<L<S<S<S<S<CCCCS<S<CCS<S<S<S<S<CCS<CCCCCCCCS<S<S<S<'))
+end
+
+def parse_protocol(data, position_to_time)
+    each_packet(data, position_to_time) do |time, packet_type, payload|
+        if packet_type == HeadCommand::PACKET_ID
+            yield(time, packet_type, parse_head_command(payload))
+        end
+    end
+end
+
+def parse_stream(io)
+    while true
+        start_pos = io.tell
+        start_byte = io.read(1)
+        return if !start_byte
+
+        if start_byte == '@'
+            # Wait for a full configuration packet
+            if io.size - io.tell < 80
+                io.seek(start_pos)
+                return
+            end
+        end
+
+        io.seek(start_pos)
+        packet_type, payload = extract_packet(io)
+        if packet_type == HeadCommand::PACKET_ID
+            puts "#{Time.now} got head command"
+            return parse_head_command(payload)
+        end
+    end
+end
+
+def listen_to_port(reader, outfile)
+    outfile.sync = true
+    io_pp = PP.new(outfile)
+    whole_stream = String.new
+    while true
+        start = Time.now
+        while whole_stream.size < 81
+            while sample = reader.raw_read_new
+                start ||= Time.now
+                whole_stream.concat(sample.data.to_byte_array[8..-1])
+            end
+        end
+
+        io = StringIO.new(whole_stream)
+        while head_command = parse_stream(io)
+            io_pp.pp(head_command)
+            pp head_command
+            puts "add annotation and press ENTER"
+            annotation = STDIN.readline
+            io_pp.breakable
+            io_pp.text annotation
+            io_pp.breakable
+            io_pp.breakable
+        end
+        whole_stream = whole_stream[io.tell..-1]
+    end
+end
+
+def parse_log_stream(path, stream_name)
+    dataset = Pocolog::Logfiles.open(path)
+    stream = dataset.stream(stream_name)
+
+    whole_stream = String.new
+    position_to_time = Array.new
+    stream.samples.raw_each do |rt, _, sample|
+        position_to_time.concat([rt] * sample.data.size)
+        raw = sample.data.to_byte_array[8..-1]
+        whole_stream.concat raw
+    end
+
+    counter = 0
+    parse_protocol StringIO.new(whole_stream), position_to_time do |time, packet_type, payload|
+        if packet_type == HeadCommand::PACKET_ID
+            counter += 1
+            print "#{time} "
+            pp payload
+        end
+    end
+    puts "#{counter} packets"
+end
+
+require 'pocolog'
+parse_log_stream ARGV[0], ARGV[1]
+
+
