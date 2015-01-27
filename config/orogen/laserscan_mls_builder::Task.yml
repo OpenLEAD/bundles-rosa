@@ -1,8 +1,8 @@
 --- name:default
 # x cell resolution in meter
-cell_resolution_x: 0.02
+cell_resolution_x: 0.05
 # y cell resolution in meter
-cell_resolution_y: 0.02
+cell_resolution_y: 0.05
 # enter a path if the environment should be saved
 envire_path: ''
 # update period in s for the envire_data port.
@@ -10,15 +10,15 @@ envire_period: 0
 # true if laser scan should be filtered
 filter_laserscan: false
 # x size of the grid in meter
-grid_size_x: 10.0
+grid_size_x: 20.0
 # y size of the grid in meter
-grid_size_y: 10.0
+grid_size_y: 20.0
 # the global name that should be used for the internal laser frame
 laser_frame: laser
 # Time in s between laserscan readings
 laserscan_period: 0.4
 # filter: bounding box of the sensor in meter
-sensor_bounding_box: 0.5
+sensor_bounding_box: 0
 # uncertainty of the laser scan
 sensor_uncertainty: 0.017453293
 # show an elevation grid instead of a pointcloud
