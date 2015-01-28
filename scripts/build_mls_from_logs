@@ -3,11 +3,16 @@
 require 'rock/bundles'
 require 'vizkit'
 
+Bundles.transformer_autoload = false
 Bundles.initialize
 
 excluded_bounding_boxes = Array.new
 with_gui = true
 option_parser = OptionParser.new do |opt|
+    opt.on '--transformer=PATH', String do |arg|
+        Bundles.transformer.load_conf(arg)
+    end
+
     opt.on '--exclude=BOX', String do |arg|
         min_x, min_y, min_z, max_x, max_y, max_z = arg.split(',').map { |v| Float(v) }
         box = Types::LaserscanMlsBuilder::Box.new(min: Eigen::Vector3.new(min_x, min_y, min_z), max: Eigen::Vector3.new(max_x, max_y, max_z))
