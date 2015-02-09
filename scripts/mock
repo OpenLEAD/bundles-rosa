@@ -4,6 +4,7 @@ require 'rock/bundle'
 require 'vizkit'
 
 Bundles.initialize 'rosa_mock'
+Bundles.transformer.load_conf('config/transforms.rb')
 
 # Note on notations:
 #   _p suffix means output port
@@ -29,13 +30,27 @@ ptu_pi = ptu.create_input_port 'joints_cmd',
 inclination_body = Orocos::RubyTaskContext.new 'inclination_body'
 inclination_body_p = inclination_body.create_output_port 'angle',
     '/base/Angle'
+inclination_body_tf = inclination_body.create_output_port 'roll_samples','/base/samples/RigidBodyState'
 
 pressure = Orocos::RubyTaskContext.new 'pressure'
 pressure_p = pressure.create_output_port 'pressure_samples',
     '/base/samples/Pressure'
+pressure_tf = pressure.create_output_port 'depth_samples','/base/samples/RigidBodyState'
 
 ui = Vizkit.default_loader.load Bundles.find_file('scripts', 'gui.ui')
 ui.window_title = "ROSA - Mock Test UI"
+
+#newframe = Qt::Widget.new
+#newframe.window_title = "ROSA - Mock Test UI"
+
+#vbox = Qt::VBoxLayout.new(newframe)
+#newframe.add_widget vbox
+
+#ok = Qt::PushButton.new "OK"
+
+#vbox.add_widget ui
+#vbox.add_widget ok
+
 
 # PTU feedback
 
@@ -107,11 +122,17 @@ ui.tiltSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
     ptu_s.elements[1].position = deg * Math::PI / 180
 end
 ui.inclinationBodySpin.connect(SIGNAL('valueChanged(int)')) do |deg|
-    inclination_body_s.rad = deg * Math::PI / 180
+    inclination = deg * Math::PI / 180 
+    inclination_body_s.rad = inclination
+    inclination_body_tf_s.orientation = Eigen::Quaternion.from_angle_axis(inclination, Eigen::Vector3.UnitX())
 end
 ui.pressureSpin.connect(SIGNAL('valueChanged(double)')) do |bar|
     pressure_s.pascal = bar * 100000
+    pressure_tf_s.position[2]=bar*10.2
 end
+
+#ui.inclinationBodySpin.setValue();
+
 
 updates = Array[
     [inductive_left_s, inductive_left_p],
@@ -120,7 +141,9 @@ updates = Array[
     [inductive_key_detached_s, inductive_key_detached_p],
     [ptu_s, ptu_p],
     [inclination_body_s, inclination_body_p],
-    [pressure_s, pressure_p]]
+    [inclination_body_tf_s, inclination_body_tf],
+    [pressure_s, pressure_p],
+    [pressure_tf_s,pressure_tf]]
 
 timer = Qt::Timer.new
 timer.connect(SIGNAL('timeout()')) do
@@ -133,6 +156,12 @@ timer.connect(SIGNAL('timeout()')) do
 end
 timer.start(100)
 
-ui.show
-Vizkit.exec
+Bundles.run do
+    Bundles.transformer.setup(pressure,inclination_body)
+    ui.show
+    #vbox.show
+    Vizkit.exec
+    Bundles.watch(pressure,inclination_body)
+end
+
 
