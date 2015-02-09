@@ -25,7 +25,7 @@ sonar.loadModel('seaking.wrl')
 
 view3d.setPluginDataFrame('body',lifiting_beam)
 view3d.setPluginDataFrame('ptu_pan_plate',ptu)
-view3d.setPluginDataFrame('sonar',sonar)
+view3d.setPluginDataFrame('seaking_transducer',sonar)
 
 # Show it
 view3d.show
