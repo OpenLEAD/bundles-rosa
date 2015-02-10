@@ -2,6 +2,7 @@
 
 require 'rock/bundle'
 require 'vizkit'
+require 'eigen'
 
 Bundles.initialize 'rosa_mock'
 Bundles.transformer.load_conf('config/transforms.rb')
@@ -26,6 +27,8 @@ ptu_p = ptu.create_output_port 'joints_samples',
     '/base/samples/Joints'
 ptu_pi = ptu.create_input_port 'joints_cmd',
     '/base/samples/Joints'
+
+ptu_tf_p = ptu.create_output_port 'transformation_samples','/base/samples/RigidBodyState'
 
 inclination_body = Orocos::RubyTaskContext.new 'inclination_body'
 inclination_body_p = inclination_body.create_output_port 'angle',
@@ -78,10 +81,43 @@ ptu_s = Types::Base::Samples::Joints.new(
     names: %w{pan tilt},
     elements: [ Hash[position: 0], Hash[position: 0] ])
 
+ptu_tf_s = Types::Base::Samples::RigidBodyState.new
+ptu_tf_s.sourceFrame = 'ptu_tilt_plate'
+ptu_tf_s.targetFrame = 'ptu_pan_plate'
+ptu_tf_s.orientation = Eigen::Quaternion.Identity
+
+#Start frame is the pan plate. X is within the plate's plane, Z going out
+#of the plate towards the body. The center of the body lies at the
+#intersection of both tilt and pan rotation axis.
+
+#Transformation from the center of the pan plate to the center of the body.
+pan_plate2center = Eigen::Vector3.new(0, 0, -0.1148)
+#Transformation from the center of the body to the center of the tilt plate
+center2tilt_plate = Eigen::Vector3.new(0, 0.0858, 0)
+#Rotation to align the tilt frame properly. X is along the zero
+#measurement, Z going out of the plate directed outside the PTU body
+q_center2tilt_plate = Eigen::Quaternion.from_angle_axis(Math::PI / 2, Eigen::Vector3.UnitX())
+pan_plate2tilt_plate = Eigen::Isometry3.Identity
+pan_plate2tilt_plate.translate(pan_plate2center)
+pan_plate2tilt_plate.translate(center2tilt_plate)
+pan_plate2tilt_plate.rotate(q_center2tilt_plate)
+
+
 inclination_body_s = Types::Base::Angle.new(rad: 0)
+inclination_body_tf_s = Types::Base::Samples::RigidBodyState.new
+inclination_body_tf_s.sourceFrame = 'body'
+inclination_body_tf_s.targetFrame = 'body_horizontal'
+inclination_body_tf_s.orientation = Eigen::Quaternion.Identity
+inclination_body_tf_s.position =  Eigen::Vector3.new(0, 0, 0)
+
 pressure_s = Types::Base::Samples::Pressure.new(
     time: Time.now,
     pascal: 100000)
+pressure_tf_s = Types::Base::Samples::RigidBodyState.new
+pressure_tf_s.sourceFrame = 'surface'
+pressure_tf_s.targetFrame = 'body_horizontal'
+pressure_tf_s.position =  Eigen::Vector3.new(0, 0, 0)
+
 
 # Scan Button
 std_scan = Types::Base::Samples::LaserScan.new
@@ -117,10 +153,21 @@ ui.inductiveKeyDetachedButton.connect(SIGNAL('toggled(bool)')) do |state|
 end
 ui.panSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
     ptu_s.elements[0].position = deg * Math::PI / 180
+    transform = Eigen::Isometry3.new.concatenate(pan_plate2tilt_plate)
+    transform.prerotate(Eigen::Quaternion.from_angle_axis(ptu_s.elements[0].position, Eigen::Vector3.UnitZ()) )
+    transform.rotate(  Eigen::Quaternion.from_angle_axis(ptu_s.elements[1].position, Eigen::Vector3.UnitZ()) )
+    ptu_tf_s.orientation = transform.rotation
+    ptu_tf_s.position = transform.translation
 end
 ui.tiltSpin.connect(SIGNAL('valueChanged(int)')) do |deg|
     ptu_s.elements[1].position = deg * Math::PI / 180
+    transform = Eigen::Isometry3.new.concatenate(pan_plate2tilt_plate)
+    transform.prerotate(Eigen::Quaternion.from_angle_axis(ptu_s.elements[0].position, Eigen::Vector3.UnitZ()) )
+    transform.rotate(  Eigen::Quaternion.from_angle_axis(ptu_s.elements[1].position, Eigen::Vector3.UnitZ()) )
+    ptu_tf_s.orientation = transform.rotation
+    ptu_tf_s.position = transform.translation
 end
+
 ui.inclinationBodySpin.connect(SIGNAL('valueChanged(int)')) do |deg|
     inclination = deg * Math::PI / 180 
     inclination_body_s.rad = inclination
@@ -140,6 +187,7 @@ updates = Array[
     [inductive_key_attached_s, inductive_key_attached_p],
     [inductive_key_detached_s, inductive_key_detached_p],
     [ptu_s, ptu_p],
+    [ptu_tf_s, ptu_tf_p],
     [inclination_body_s, inclination_body_p],
     [inclination_body_tf_s, inclination_body_tf],
     [pressure_s, pressure_p],
