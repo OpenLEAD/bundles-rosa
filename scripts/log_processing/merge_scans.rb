@@ -67,7 +67,11 @@ log_dirs.each do |log_dir|
 
         puts "start time: #{start_time}"
 
-        frame_name = log_dir.basename.to_s.gsub(/-/, '_')
+        if log_dir.basename.to_s =~ /(\d{6})$/
+            frame_name = $1
+        else raise ArgumentError, "invalid log dir pattern, expected it to finish with the timestamp as HHMMSS"
+        end
+
         scan_transform = scans_transforms.transformation_for(frame_name, 'reference')
         scan_rbs = Types::Base::Samples::RigidBodyState.Invalid
         scan_rbs.time = start_time
