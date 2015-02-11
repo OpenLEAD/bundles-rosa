@@ -6,6 +6,9 @@ require_relative 'autoscan_state_machine'
 
 config = 'green'
 options = OptionParser.new do |opt|
+    opt.on '--host HOST', 'access this host or IP instead of localhost' do |host|
+        Orocos::CORBA.name_service.ip = host
+    end
     opt.on '--blue', 'run with the blue board (default is to run for the green board)' do |flag|
 	if flag
 	    config = 'blue'
