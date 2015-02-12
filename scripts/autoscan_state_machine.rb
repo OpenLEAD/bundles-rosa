@@ -124,6 +124,7 @@ class AutoscanStateMachine < Qt::Object
                     return :wait_for_position
                 else
                     # Finished !
+                    emit finished
                     return
                 end
             else
@@ -173,5 +174,6 @@ class AutoscanStateMachine < Qt::Object
     slots 'received_scan()'
     signals 'moveJoints(double,double)'
     signals 'scanning()'
+    signals 'finished()'
 end
 
