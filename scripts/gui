@@ -112,7 +112,16 @@ end
 
 
 state_machine = nil
+start_sonar_bearing = 0
+old_sonar_bearing = 0 
 main_ui.runButton.connect SIGNAL('toggled(bool)') do |flag|
+
+    autoscan_logger = 
+    begin Bundles.get 'ptu_Logger'
+    rescue Orocos::NotFound
+    end
+
+
     if flag
         pan_range = AutoscanStateMachine::Range.new(
             main_ui.panSetSlide.value * Math::PI / 180,
@@ -126,11 +135,6 @@ main_ui.runButton.connect SIGNAL('toggled(bool)') do |flag|
         # Assign the state machine to a variable to avoid having it garbage
         # collected
         state_machine = AutoscanStateMachine.run(0.1, pan_range, tilt_range)
-        autoscan_logger = 
-        begin Bundles.get 'ptu_Logger'
-        rescue Orocos::NotFound
-        end
-
 
         state_machine.connect SIGNAL('moveJoints(double,double)') do |cmd_pan, cmd_tilt|
             main_ui.panSetSlide.setValue(Integer( cmd_pan * 180 / Math::PI ))
@@ -153,13 +157,24 @@ main_ui.runButton.connect SIGNAL('toggled(bool)') do |flag|
         Orocos::Async.proxy('ptu').port('joints_samples').on_data do |sample|
             state_machine.update_position(sample.elements[0].position, sample.elements[1].position)  
         end
+
         Orocos::Async.proxy('seaking').port('profiling_scan').on_data do
             state_machine.received_scan
         end
-        Orocos::Async.proxy('micron').port('sonar_beam').on_data do
-            state_machine.received_scan
+
+        Orocos::Async.proxy('micron').port('sonar_beam').on_data do |sonar_beam|
+            if old_sonar_bearing < start_sonar_bearing and sonar_beam.bearing.rad >= start_sonar_bearing 
+                state_machine.received_scan
+            end
+            old_sonar_bearing = sonar_beam.bearing.rad
         end
+
+        state_machine.connect SIGNAL('scanning()') do
+            start_sonar_bearing = old_sonar_bearing
+        end
+
     else
+        autoscan_logger.log_annotations Time.now, 'PTU_MOVING', "#{state_machine.pan} #{state_machine.tilt}" #Can log PTU_MOVING twice if moving when ended, but shouldnt be a problem
         state_machine.stop
     end
 end
