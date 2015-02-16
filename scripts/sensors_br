@@ -1,0 +1,110 @@
+#! /usr/bin/env ruby
+
+require 'rock/bundles'
+require 'orocos/async'
+
+Bundles.initialize
+
+def connect_device_to_bus(bus, task)
+    task_name = task.basename
+    task.io_port = ""
+    bus.port(task_name).connect_to task.io_raw_in, :type => :buffer, :size => 50
+    task.io_raw_out.connect_to bus.port("w#{task_name}"), :type => :buffer, :size => 50
+end
+
+def restart_on_exception(task)
+    task.to_async.on_state_change do |state|
+        if !task.runtime_state?(state)
+            begin
+                if task.exception_state?(state)
+                    task.reset_exception
+                    task.configure
+                    task.start
+                elsif task.rtt_state == :PRE_OPERATIONAL
+                    task.configure
+                    task.start
+                elsif task.rtt_state == :STOPPED
+                    task.start
+                end
+            rescue Orocos::StateTransitionFailed
+            end
+        end
+    end
+end
+
+Bundles.run \
+    'bus_schremote::Task' => ['bus_pressure', 'bus_sonar', 'bus_indutivos1', 'bus_indutivos2'],#'busses',
+    'inclinometer::Task' => ['inclination_body'],
+    'pressure_velki::Task' => 'pressure',
+    'ptu_kongsberg_oe10::Task' => 'ptu',
+    'sonar_tritech::Micron' => 'micron',
+    'sonar_tritech::Profiling' => 'seaking' do # , => :output '%m-%p.log', :valgrind => ['pressure','bus1']
+
+    bus_indutivos1 = Bundles.get 'bus_indutivos1'
+    Orocos.conf.apply bus_indutivos1, ['default', "indutivos1"]
+    bus_indutivos2 = Bundles.get 'bus_indutivos2'
+    Orocos.conf.apply bus_indutivos2, ['default', "indutivos2"]
+    bus_sonar = Bundles.get 'bus_sonar'
+    Orocos.conf.apply bus_sonar, ['default', "sonar_micron"]
+    bus_pressure = Bundles.get 'bus_pressure'
+    Orocos.conf.apply bus_pressure, ['default', "pressure"]
+
+# Configure the bus driver first, we need it to connect the micron
+    bus_indutivos1.configure
+    bus_indutivos2.configure
+    bus_sonar.configure
+    bus_pressure.configure
+    Orocos.log_all
+
+    bus_indutivos1.start
+    bus_indutivos2.start
+    bus_sonar.start
+    bus_pressure.start
+
+    inclination_body = Bundles.get 'inclination_body'
+    bus_indutivos1.inclination_body.
+	connect_to inclination_body.analog_input
+    Orocos.conf.apply inclination_body, ['default', 'roll']
+    inclination_body.configure
+    inclination_body.start
+
+    pressure = Bundles.get 'pressure'
+    restart_on_exception(pressure)
+    connect_device_to_bus(bus_pressure, pressure)
+    pressure.configure
+    pressure.start
+
+    ptu = Bundles.get 'ptu'
+    restart_on_exception(ptu)
+    connect_device_to_bus(bus_sonar, ptu)
+    ptu.configure
+    ptu.start
+
+
+
+    micron = Bundles.get 'micron'
+    seaking = Bundles.get 'seaking'
+
+    if bus_sonar.has_port?('micron')
+	#restart_on_exception(micron)
+        connect_device_to_bus(bus_sonar, micron)
+        #micron.configure
+        #micron.start
+    else
+	#restart_on_exception(seaking)
+        connect_device_to_bus(bus_sonar, seaking)
+        #seaking.configure
+        #seaking.start
+    end
+
+    Bundles.transformer.setup(pressure, inclination_body, ptu, seaking)
+
+    Bundles.watch(
+        bus_indutivos1, bus_indutivos2, bus_sonar, bus_pressure, inclination_body, 
+        pressure, micron, seaking, ptu
+    ) do
+	# Workaround bug in orocos.rb to get the on_state_change in restart_on_exception working
+	Orocos::Async.event_loop.step
+    end
+end
+

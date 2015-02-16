@@ -6,6 +6,115 @@ port: 3101
 # ROSA2: '00:04:A3:31:00:12'
 # ROSA3: '00:04:A3:31:00:15'
 
+--- name:pressure
+mac: '00:04:A3:31:00:62'
+uarts:
+    - name: pressure
+      mode: 0
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 250000
+      uart_module: 0
+      tx: 5
+      tx_type: PIN_DOUT_HIGH
+      rx: 1
+      enable_send: -1
+
+--- name:sonar_micron
+mac: '00:04:A3:31:00:63'
+reference_voltage: 3.25
+fail_on_uart_buffer_overflow: false
+uarts:
+    - name: ptu
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 9600
+      mode: 0
+      uart_module: 1
+      tx: 4 
+      tx_type: PIN_DOUT_HIGH
+      rx: 0
+      enable_send: -1
+    - name: micron
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 57600
+      mode: 0
+      uart_module: 0
+      tx: 5
+      tx_type: PIN_DOUT_HIGH
+      rx: 1
+      enable_send: -1
+
+--- name:sonar_seaking
+mac: '00:04:A3:31:00:63'
+reference_voltage: 3.25
+fail_on_uart_buffer_overflow: false
+uarts:
+    - name: ptu
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 9600
+      mode: 0
+      uart_module: 1
+      tx: 4 
+      tx_type: PIN_DOUT_HIGH
+      rx: 0
+      enable_send: -1
+    - name: seaking
+      baud: 38400
+      mode: 0
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      uart_module: 0
+      tx: 5
+      tx_type: PIN_DOUT_HIGH
+      rx: 1
+      enable_send: -1
+
+--- name:indutivos1
+mac: '00:04:A3:31:00:6B'
+reference_voltage: 3.25
+analog_ins:
+    - pin: 7
+      type: PIN_ANALOG_IN
+      name: inclination_body
+      analog_scale_factor: 2.9692
+digital_ins:
+    - pin: 8
+      type: PIN_DIN_PULLUP
+      name: inductive_right
+    - pin: 9
+      type: PIN_DIN_PULLUP
+      name: inductive_left
+    - pin: 10
+      type: PIN_DIN_PULLUP
+      name: inductive_key_detached
+    - pin: 11
+      type: PIN_DIN_PULLUP
+      name: inductive_key_attached
+
+--- name:indutivos2
+mac: '00:04:A3:31:00:6A'
+digital_ins:
+    - pin: 8
+      type: PIN_DIN_PULLUP
+      name: inductive_right_extra
+    - pin: 9
+      type: PIN_DIN_PULLUP
+      name: inductive_left_extra
+uarts:
+    - name: pressure
+      mode: 0
+      # The electronics has trouble with 115200, switch back to a slower
+      # baudrate
+      baud: 250000
+      uart_module: 0
+      tx: 5
+      tx_type: PIN_DOUT_HIGH
+      rx: 1
+      enable_send: -1
+
 --- name:blue1
 mac: '00:04:A3:31:00:14'
 reference_voltage: 3.25
