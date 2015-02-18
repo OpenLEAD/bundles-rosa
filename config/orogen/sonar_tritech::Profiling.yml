@@ -1,12 +1,12 @@
 --- name:default
 # the device address. It can either be serial://PATH[:baudrate], udp://IP_OR_HOSTNAME[:PORT] or tcp://IP_OR_HOSTNAME[:PORT]. Leave empty if you mean to use the io_raw_in and io_raw_out ports.
-io_port: 'serial:///dev/ttyUSB0:9600'
+io_port: 'serial:///dev/ttyAP1:38400'
 
 acquisition_timeout:
   microseconds: 1000000
 
 config:
-  mode: :PROFILING_FIRST
+  mode: :PROFILING_MAX
   left_limit:
       rad: 1.65
   right_limit:
@@ -16,8 +16,8 @@ config:
   select_channel: 2
   frequency_chan1: 600000
   frequency_chan2: 1200000
-  max_distance: 2.5
-  min_distance: 0.3
+  max_distance: 10
+  min_distance: 2
   speed_of_sound: 1500.0
   continous: true
 

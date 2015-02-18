@@ -13,8 +13,8 @@ offset: 0
 body_frame: inclinometer_pitch
 world_frame: world_inclinometer_pitch
 
-direction_flag: false
+direction_flag: true
 
-offset: -0.57
+offset: 0
 
 

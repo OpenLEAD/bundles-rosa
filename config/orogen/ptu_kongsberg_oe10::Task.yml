@@ -1,6 +1,6 @@
 --- name:default
 # This is reset to an empty string in the run script when connected to the bus
-io_port: 'serial:///dev/ttyUSB0:9600'
+io_port: 'serial:///dev/ttyS1:9600'
 device_id: 2
 # the timeout on read. Defaults to one second
 io_read_timeout:
