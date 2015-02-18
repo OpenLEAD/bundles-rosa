@@ -53,8 +53,15 @@ class AutoscanStateMachine < Qt::Object
     end
 
     def target_position_reached?
-        (cmd_pan - pan).abs <= position_reached_tolerance &&
-            (cmd_tilt - tilt).abs <= position_reached_tolerance
+       diff_pan  = cmd_pan - pan
+       diff_pan  = Math::PI - ((cmd_pan - pan).abs - Math::PI).abs
+       
+       diff_tilt = cmd_tilt - tilt
+       diff_tilt  = Math::PI - ((cmd_tilt - tilt).abs - Math::PI).abs
+
+       diff_pan <= position_reached_tolerance &&
+            diff_tilt <= position_reached_tolerance
+    
     end
 
     def moved?
