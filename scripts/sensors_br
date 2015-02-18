@@ -33,14 +33,14 @@ def restart_on_exception(task)
 end
 
 Bundles.run \
-    'bus_schremote::Task' => ['bus_pressure', 'bus_sonar', 'bus_indutivos1', 'bus_indutivos2'],#'busses',
+    'bus_schremote::Task' => ['bus_pressure', 'bus_sonar', 'bus1', 'bus_indutivos2'],#'busses',
     'inclinometer::Task' => ['inclination_body'],
     'pressure_velki::Task' => 'pressure',
     'ptu_kongsberg_oe10::Task' => 'ptu',
     'sonar_tritech::Micron' => 'micron',
     'sonar_tritech::Profiling' => 'seaking' do # , => :output '%m-%p.log', :valgrind => ['pressure','bus1']
 
-    bus_indutivos1 = Bundles.get 'bus_indutivos1'
+    bus_indutivos1 = Bundles.get 'bus1'
     Orocos.conf.apply bus_indutivos1, ['default', "indutivos1"]
     bus_indutivos2 = Bundles.get 'bus_indutivos2'
     Orocos.conf.apply bus_indutivos2, ['default', "indutivos2"]

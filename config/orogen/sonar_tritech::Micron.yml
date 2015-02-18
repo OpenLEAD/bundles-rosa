@@ -1,5 +1,6 @@
 --- name:default
-io_port: 'serial:///dev/ttyUSB0:57600'
+# the device address. It can either be serial://PATH[:baudrate], udp://IP_OR_HOSTNAME[:PORT] or tcp://IP_OR_HOSTNAME[:PORT]. Leave empty if you mean to use the io_raw_in and io_raw_out ports.
+io_port: 'serial:///dev/ttyAP0:57600'
 config:
   left_limit:
     rad: -3.141592653589792
@@ -20,8 +21,6 @@ configure_timeout: 10.0
 echo_sounder_timeout: 0.0
 
 ground_frame: echosounder_frame
-# the device address. It can either be serial://PATH[:baudrate], udp://IP_OR_HOSTNAME[:PORT] or tcp://IP_OR_HOSTNAME[:PORT]. Leave empty if you mean to use the io_raw_in and io_raw_out ports.
-io_port: ''
 # the timeout on read. Defaults to one second
 io_read_timeout:
   microseconds: 10000000

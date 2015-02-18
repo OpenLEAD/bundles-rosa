@@ -1,0 +1,95 @@
+#! /usr/bin/env ruby
+
+require 'rock/bundles'
+require 'orocos/async'
+
+Bundles.initialize
+
+selected_sonar = :seaking
+start_sonar = false
+options = OptionParser.new do |opt|
+    opt.on '--start-sonar', 'start te sonar-related devices (PTU and either seaking or micron)' do
+        start_sonar = true
+    end
+    opt.on '--seaking', "select the seaking as sonar" do
+        selected_sonar = :seaking
+    end
+    opt.on '--micron', "enable micron-related devices (micron and PTU)" do |flag|
+        selected_sonar = :micron
+    end
+end
+options.parse(ARGV)
+
+def restart_on_exception(task)
+    has_been_started = false
+    task.to_async.on_state_change do |state|
+        has_been_started ||= (state == :RUNNING)
+        if has_been_started && !task.runtime_state?(state)
+            begin
+                if task.exception_state?(state)
+                    task.reset_exception
+                    task.configure
+                    task.start
+                elsif task.rtt_state == :PRE_OPERATIONAL
+                    task.configure
+                    task.start
+                elsif task.rtt_state == :STOPPED
+                    task.start
+                end
+            rescue Orocos::StateTransitionFailed
+            end
+        end
+    end
+end
+
+Bundles.run \
+    'rosa_dfki_ucontroller::Task' => 'ucontroller',
+    'inclinometer::Task' => ['inclination_body','inclination_body_2'],
+    'ptu_kongsberg_oe10::Task' => 'ptu',
+    'sonar_tritech::Micron' => 'micron',
+    'sonar_tritech::Profiling' => 'seaking' do # , => :output '%m-%p.log', :valgrind => []
+
+    ucontroller = Bundles.get 'ucontroller'
+    ucontroller.configure
+    Orocos::CORBA.name_service.do_bind(ucontroller, 'pressure')
+    Orocos::CORBA.name_service.do_bind(ucontroller, 'bus1')
+    Orocos.log_all
+
+    ucontroller.start
+
+    inclination_body = Bundles.get 'inclination_body'
+    ucontroller.inclination_body.
+	connect_to inclination_body.analog_input
+    Orocos.conf.apply inclination_body, ['default', 'roll']
+    inclination_body.configure
+    inclination_body.start
+
+    inclination_body_2 = Bundles.get 'inclination_body_2'
+    ucontroller.inclination_body_2.
+	connect_to inclination_body_2.analog_input
+    Orocos.conf.apply inclination_body_2, ['default', 'pitch']
+    inclination_body_2.configure
+    inclination_body_2.start
+
+    ptu = Bundles.get 'ptu'
+    restart_on_exception(ptu)
+    micron = Bundles.get 'micron'
+    restart_on_exception(micron)
+    seaking = Bundles.get 'seaking'
+    restart_on_exception(seaking)
+    sonar = Bundles.get selected_sonar.to_s
+
+    if start_sonar
+        ptu.configure
+        ptu.start
+        sonar.configure
+    end
+
+    Bundles.transformer.setup(ucontroller, inclination_body, inclination_body_2, ptu, sonar)
+
+    Bundles.watch(ucontroller, inclination_body, inclination_body_2, ptu, sonar) do
+	# Workaround bug in orocos.rb to get the on_state_change in restart_on_exception working
+	Orocos::Async.event_loop.step
+    end
+end
+
